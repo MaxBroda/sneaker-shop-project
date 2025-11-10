@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary-dark-color: #002e4f;
+    --secondary-dark-color: #00a6dd;
+    --tertiary-dark-color: #daeafe;
+    --accent-color: #012a4a;
+    --signal-red: #e63946;
+  }
+
+  p,
+  span,
+  div {
+    color: var(--accent-color);
+  }
+}
+
+@layer utilities {
+  .bg-shop-blue-dark {
+    background-color: var(--primary-dark-color);
+  }
+  .text-shop-blue-dark {
+    color: var(--accent-color);
+  }
+  .text-shop-blue-light {
+    color: var(--secondary-dark-color);
+  }
+  .bg-shop-blue-light {
+    background-color: var(--secondary-dark-color);
+  }
+  .bg-shop-bright {
+    background-color: var(--tertiary-dark-color);
+  }
+  .border-shop-blue-light {
+    border-color: var(--secondary-dark-color);
+  }
+  .bg-signal-red {
+    background-color: var(--signal-red);
+  }
+}
