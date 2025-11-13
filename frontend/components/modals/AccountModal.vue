@@ -88,7 +88,6 @@ function getRoleLabel(role?: string): string {
   return "Keine Rolle";
 }
 
-// Close dropdown on outside click
 function handleClickOutside(event: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     isOpen.value = false;

@@ -29,7 +29,6 @@ export const useAuth = () => {
 
   const API_URL = "http://localhost:8080/api";
 
-  // 🧠 Restore session on page load
   onMounted(() => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
@@ -84,7 +83,6 @@ export const useAuth = () => {
 
       console.log("Registrierung Antwort:", res);
       if (res.success && res.user && res.token) {
-        // Automatically login
         loginUserDirect(res.user, res.token);
       }
 
@@ -92,7 +90,6 @@ export const useAuth = () => {
     } catch (err) {
       console.error("Registrierungsfehler:", err);
 
-      // Handle HTTP error responses (like 409 for duplicate email)
       if (err && typeof err === "object" && "data" in err) {
         const error = err as { data?: { message?: string } };
         if (error.data?.message) {
@@ -131,7 +128,6 @@ export const useAuth = () => {
     }
   }
 
-  // ✨ Helper to store user and token directly
   function loginUserDirect(newUser: User, newToken: string) {
     user.value = newUser;
     token.value = newToken;

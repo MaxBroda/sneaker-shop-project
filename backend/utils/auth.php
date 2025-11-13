@@ -28,5 +28,5 @@ function authenticate()
         exit;
     }
 
-    return $user; // enthält id, email, first_name, last_name, role
+    return $user;
 }

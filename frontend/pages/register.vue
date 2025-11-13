@@ -140,6 +140,8 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 
+const { register } = useAuth();
+
 const email = ref("");
 const firstName = ref("");
 const lastName = ref("");
@@ -157,12 +159,8 @@ const address = reactive({
   country: "",
 });
 
-const { register } = useAuth();
-
-// Simple email regex for validation
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Number validation - only allow digits
 function validateNumberInput(event: Event) {
   const input = event.target as HTMLInputElement;
   input.value = input.value.replace(/\D/g, "");

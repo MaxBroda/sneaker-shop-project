@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *'); // allow frontend requests during dev
+header('Access-Control-Allow-Origin: *');
 
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/cors.php';
