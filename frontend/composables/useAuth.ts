@@ -29,13 +29,15 @@ export const useAuth = () => {
 
   const API_URL = "http://localhost:8080/api";
 
+  // Initialize from localStorage on client side only
   onMounted(() => {
-    const savedToken = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
-    if (savedToken && savedUser) {
-      token.value = savedToken;
-      user.value = JSON.parse(savedUser);
-      console.log("Session von localStorage wiederhergestellt:", user.value);
+    if (typeof window !== "undefined") {
+      const savedToken = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
+      if (savedToken && savedUser) {
+        token.value = savedToken;
+        user.value = JSON.parse(savedUser);
+      }
     }
   });
 

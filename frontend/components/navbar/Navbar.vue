@@ -23,7 +23,7 @@
             to="/add-product"
             class="hover:text-shop-blue-light flex items-center justify-center"
           >
-            <Icon name="mdi:plus" class="w-6 h-6 text-white" />
+            <Icon name="mdi:plus-thick" class="w-6 h-6 text-white" />
           </NuxtLink>
           <NuxtLink
             v-if="user && user.role === 'customer'"
