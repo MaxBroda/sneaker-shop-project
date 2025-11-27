@@ -1,28 +1,24 @@
 <template>
-  <div class="container mx-auto px-4 py-8 max-w-5xl">
-    <h1 class="text-2xl font-bold mb-6 text-gray-800">Produkt hinzufügen</h1>
+  <div class="container mx-auto px-4 py-2 md:py-8 max-w-5xl">
+    <h1 class="text-2xl font-bold mb-6 text-center">Produkt hinzufügen</h1>
 
     <div class="bg-white p-6 shadow-md rounded-xl mb-6">
-      <h2 class="text-xl font-semibold mb-4 text-gray-800">
-        Neues Produkt erstellen
-      </h2>
-
       <div
         v-if="errorMessage"
-        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+        class="bg-red-100 border border-red-400 text-signal-red px-4 py-3 rounded mb-4"
       >
         {{ errorMessage }}
       </div>
       <div
         v-if="successMessage"
-        class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
+        class="bg-green-100 border border-green-400 text-signal-green px-4 py-3 rounded mb-4"
       >
         {{ successMessage }}
       </div>
 
       <form @submit.prevent="addProduct" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-sm font-medium mb-1">
             Produktname *
           </label>
           <input
@@ -35,7 +31,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-sm font-medium mb-1">
             Beschreibung
           </label>
           <textarea
@@ -47,7 +43,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-sm font-medium mb-1">
             Preis (€) *
           </label>
           <input
@@ -62,7 +58,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium mb-2">
             Kategorien (mehrfach auswählbar)
           </label>
           <div class="grid grid-cols-2 gap-2">
@@ -92,61 +88,16 @@
       </form>
     </div>
 
-    <div class="bg-white p-6 shadow-md rounded-xl">
-      <h2 class="text-xl font-semibold mb-4 text-gray-800">Meine Produkte</h2>
 
-      <div
-        v-if="myProducts.length === 0"
-        class="text-gray-500 text-center py-8 bg-gray-50 rounded-lg"
-      >
-        <p>Sie haben noch keine Produkte hinzugefügt.</p>
-      </div>
-
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div
-          v-for="product in myProducts"
-          :key="product.id"
-          class="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 bg-white"
-        >
-          <h3 class="font-semibold text-lg mb-2 text-gray-800">
-            {{ product.name }}
-          </h3>
-          <p class="text-gray-600 text-sm mb-3 line-clamp-2 min-h-[2.5rem]">
-            {{ product.description || "Keine Beschreibung" }}
-          </p>
-
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-xl font-bold text-blue-600">
-              {{ parseFloat(product.price).toFixed(2) }} €
-            </span>
-            <span
-              v-if="product.category"
-              class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium"
-            >
-              {{ product.category }}
-            </span>
-          </div>
-
-          <button
-            @click="deleteProduct(product.id)"
-            class="w-full mt-2 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
-          >
-            Löschen
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script setup lang="ts">
 const { user, token } = useAuth();
 const API_URL = "http://localhost:8080/api";
 
-const myProducts = ref<any[]>([]);
 const isLoading = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
-const isInitialized = ref(false);
 
 const availableCategories = ["Sneaker", "Laufschuhe", "Training", "Outdoor"];
 
@@ -156,21 +107,6 @@ const form = reactive({
   price: "",
   categories: [] as string[],
 });
-
-async function fetchMyProducts() {
-  if (!user.value) return;
-
-  try {
-    const response = await $fetch<any>(
-      `${API_URL}/products.php?seller_id=${user.value.id}`
-    );
-    if (response.success) {
-      myProducts.value = response.data;
-    }
-  } catch (err) {
-    console.error("Fehler beim Laden der Produkte:", err);
-  }
-}
 
 onMounted(() => {
   if (typeof window !== "undefined") {
@@ -193,9 +129,6 @@ onMounted(() => {
       navigateTo("/login");
       return;
     }
-
-    fetchMyProducts();
-    isInitialized.value = true;
   }
 });
 
@@ -264,7 +197,10 @@ async function addProduct() {
       form.description = "";
       form.price = "";
       form.categories = [];
-      await fetchMyProducts();
+      
+      setTimeout(() => {
+        successMessage.value = "";
+      }, 3000);
     } else {
       errorMessage.value = response.message || "Fehler beim Hinzufügen";
     }
@@ -294,50 +230,5 @@ function formatPriceInput(event: Event) {
   }
 
   form.price = value;
-}
-
-async function deleteProduct(productId: number) {
-  if (!confirm("Möchten Sie dieses Produkt wirklich löschen?")) {
-    return;
-  }
-
-  let authToken = token.value;
-  if (!authToken && typeof window !== "undefined") {
-    authToken = localStorage.getItem("token");
-  }
-
-  if (!authToken) {
-    errorMessage.value =
-      "Sie sind nicht angemeldet. Bitte melden Sie sich erneut an.";
-    navigateTo("/login");
-    return;
-  }
-
-  try {
-    const response = await $fetch<any>(
-      `${API_URL}/products.php?id=${productId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    );
-
-    if (response.success) {
-      successMessage.value = "Produkt erfolgreich gelöscht!";
-      await fetchMyProducts();
-
-      setTimeout(() => {
-        successMessage.value = "";
-      }, 3000);
-    } else {
-      errorMessage.value = response.message || "Fehler beim Löschen";
-    }
-  } catch (err: any) {
-    console.error("Fehler beim Löschen:", err);
-    errorMessage.value =
-      err?.data?.message || "Fehler beim Löschen des Produkts";
-  }
 }
 </script>

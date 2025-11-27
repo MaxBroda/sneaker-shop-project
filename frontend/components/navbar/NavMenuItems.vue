@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     to="/"
-    class="hover:text-shop-blue-light text-shop-blue-dark md:text-white"
+    class="hover:text-shop-blue-light md:text-white"
     @click="emit('linkClicked')"
     >Home</NuxtLink
   >
@@ -9,7 +9,7 @@
 
   <NuxtLink
     to="/products"
-    class="hover:text-shop-blue-light text-shop-blue-dark md:text-white"
+    class="hover:text-shop-blue-light md:text-white"
     @click="emit('linkClicked')"
     >Produkte</NuxtLink
   >
@@ -17,7 +17,7 @@
 
   <NuxtLink
     to="/about"
-    class="hover:text-shop-blue-light text-shop-blue-dark md:text-white"
+    class="hover:text-shop-blue-light md:text-white"
     @click="emit('linkClicked')"
     >Info</NuxtLink
   >
@@ -25,7 +25,7 @@
 
   <NuxtLink
     to="/contact"
-    class="hover:text-shop-blue-light text-shop-blue-dark md:text-white"
+    class="hover:text-shop-blue-light md:text-white"
     @click="emit('linkClicked')"
     >Kontakt</NuxtLink
   >

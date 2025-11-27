@@ -23,7 +23,7 @@
         </button>
       </form>
 
-      <p v-if="error" class="text-red-500 mt-2 text-center">{{ error }}</p>
+      <p v-if="error" class="text-signal-red mt-2 text-center">{{ error }}</p>
       <p class="mt-4 text-center">
         Du hast noch keinen Account?
         <NuxtLink to="/register" class="text-shop-blue-light"

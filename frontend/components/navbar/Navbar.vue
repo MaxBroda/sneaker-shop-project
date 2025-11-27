@@ -13,7 +13,7 @@
         <NuxtLink
           v-if="!user"
           to="/login"
-          class="bg-signal-red hover:bg-red-800 text-white font-bold h-full px-10 rounded-full flex items-center justify-center transition-all duration-200"
+          class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-10 rounded-full flex items-center justify-center transition-all duration-200"
         >
           Login
         </NuxtLink>
@@ -34,7 +34,7 @@
           </NuxtLink>
           <AccountModal />
           <button
-            class="bg-signal-red hover:bg-red-800 text-white font-bold h-full px-8 rounded-full transition-all duration-200"
+            class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-8 rounded-full transition-all duration-200"
             @click="handleLogout"
           >
             Logout

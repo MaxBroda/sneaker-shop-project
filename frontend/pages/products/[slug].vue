@@ -1,53 +1,43 @@
 <template>
   <div class="container mx-auto px-4 py-8 max-w-4xl">
-    <!-- Back Button -->
     <button
       @click="navigateTo('/products')"
-      class="mb-6 flex items-center text-gray-600 hover:text-blue-600 transition-colors"
+      class="mb-6 flex items-center hover:text-blue-600 transition-colors"
     >
       <span class="mr-2">←</span> Zurück zu allen Produkten
     </button>
-
-    <!-- Loading State -->
     <div v-if="isLoading" class="text-center py-12">
-      <p class="text-gray-600">Produkt wird geladen...</p>
+      <p class="">Produkt wird geladen...</p>
     </div>
-
-    <!-- Error Message -->
     <div
       v-else-if="errorMessage"
-      class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-xl mb-4"
+      class="bg-red-100 border border-red-400 text-signal-red px-6 py-4 rounded-xl mb-4"
     >
       {{ errorMessage }}
     </div>
-
-    <!-- Product Detail -->
     <div
       v-else-if="product"
       class="bg-white shadow-md rounded-xl overflow-hidden"
     >
       <div class="grid md:grid-cols-2 gap-6">
-        <!-- Product Image -->
         <div
-          class="bg-gradient-to-br from-gray-100 to-gray-200 h-96 flex items-center justify-center"
+          class="bg-gradient-to-br from-gray-100 to-gray-200 h-100 flex items-center justify-center"
         >
-          <span class="text-gray-400 text-8xl">👟</span>
+          <span class="text-gray-500 text-8xl">👟</span>
         </div>
-
-        <!-- Product Info -->
         <div class="p-6">
-          <h1 class="text-3xl font-bold text-gray-800 mb-4">
+          <h1 class="text-3xl font-bold mb-4">
             {{ product.name }}
           </h1>
 
           <div class="mb-6">
             <span class="text-4xl font-bold text-blue-600">
-              {{ parseFloat(product.price.toString()).toFixed(2) }} €
+              {{ product.price }} €
             </span>
           </div>
 
           <div v-if="product.category" class="mb-6">
-            <h3 class="text-sm font-medium text-gray-700 mb-2">Kategorien:</h3>
+            <h3 class="text-sm font-medium mb-2">Kategorien:</h3>
             <div class="flex flex-wrap gap-2">
               <span
                 v-for="cat in product.category.split(', ')"
@@ -58,19 +48,17 @@
               </span>
             </div>
           </div>
-
           <div class="mb-6">
-            <h3 class="text-sm font-medium text-gray-700 mb-2">
+            <h3 class="text-sm font-medium mb-2">
               Beschreibung:
             </h3>
-            <p class="text-gray-600 leading-relaxed">
+            <p class="text-gray-500">
               {{ product.description || "Keine Beschreibung verfügbar" }}
             </p>
           </div>
-
           <div class="border-t border-gray-200 pt-4">
-            <h3 class="text-sm font-medium text-gray-700 mb-2">Verkäufer:</h3>
-            <p class="text-gray-800 font-medium">
+            <h3 class="text-sm font-medium mb-2">Verkäufer:</h3>
+            <p class="text-gray-500">
               {{ product.seller_first_name }} {{ product.seller_last_name }}
             </p>
           </div>

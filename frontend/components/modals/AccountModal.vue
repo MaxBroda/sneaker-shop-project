@@ -12,7 +12,7 @@
         class="absolute -right-5 mt-3 w-52 bg-white text-shop-dark rounded-xl shadow-xl border z-50"
       >
         <div class="px-4 py-3 border-b border-gray-200">
-          <h1 class="font-semibold text-shop-blue-dark">
+          <h1 class="font-semibold">
             {{ user?.firstName }} {{ user?.lastName }}
           </h1>
           <p class="text-sm text-shop-blue-light">
@@ -23,7 +23,7 @@
           <li>
             <NuxtLink
               to="/profile"
-              class="block px-4 py-2 hover:bg-gray-100 transition text-shop-blue-dark"
+              class="block px-4 py-2 hover:bg-gray-100 transition"
               @click="closeDropdown"
             >
               Profil
@@ -32,8 +32,8 @@
 
           <li v-if="user?.role === 'seller'">
             <NuxtLink
-              to="/seller/add-product"
-              class="block px-4 py-2 hover:bg-gray-100 transition text-shop-blue-dark"
+              to="/my-products"
+              class="block px-4 py-2 hover:bg-gray-100 transition"
               @click="closeDropdown"
             >
               Produkte verwalten
@@ -42,14 +42,14 @@
           <li v-if="user?.role === 'customer'">
             <NuxtLink
               to="/orders"
-              class="block px-4 py-2 hover:bg-gray-100 transition text-shop-blue-dark"
+              class="block px-4 py-2 hover:bg-gray-100 transition"
               @click="closeDropdown"
             >
               Bestellungen
             </NuxtLink>
             <NuxtLink
               to="/address-book"
-              class="block px-4 py-2 hover:bg-gray-100 transition text-shop-blue-dark"
+              class="block px-4 py-2 hover:bg-gray-100 transition"
               @click="closeDropdown"
             >
               Addressen

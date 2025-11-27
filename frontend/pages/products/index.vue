@@ -1,11 +1,10 @@
 <template>
-  <div class="container mx-auto px-4 py-8 max-w-5xl">
-    <h1 class="text-2xl font-bold mb-6 text-gray-800 text-center">
+  <div class="container mx-auto px-4 py-2 md:py-8 max-w-5xl">
+    <h1 class="text-2xl font-bold mb-6 text-center">
       Alle Produkte
     </h1>
-    <!-- Category Filter -->
     <div class="bg-white p-4 shadow-md rounded-xl mb-6">
-      <h2 class="text-lg font-semibold mb-3 text-gray-800">
+      <h2 class="text-lg font-semibold mb-3">
         Nach Kategorien filtern
       </h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -18,7 +17,7 @@
             type="checkbox"
             :value="category"
             v-model="selectedCategories"
-            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            class="w-4 h-4 accent-shop-blue-light border-gray-300 rounded focus:ring-shop-blue-dark"
           />
           <span class="text-sm">{{ category }}</span>
         </label>
@@ -27,31 +26,25 @@
         v-if="selectedCategories.length > 0"
         class="mt-3 pt-3 border-t border-gray-200"
       >
-        <p class="text-sm text-gray-600">
+        <p class="text-sm">
           {{ products.length }} von {{ allProducts.length }} Produkten angezeigt
         </p>
       </div>
     </div>
-
-    <!-- Loading State -->
     <div v-if="isLoading" class="text-center py-12">
-      <p class="text-gray-600">Produkte werden geladen...</p>
+      <p class="">Produkte werden geladen...</p>
     </div>
-
-    <!-- Error Message -->
     <div
       v-else-if="errorMessage"
-      class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-xl mb-4"
+      class="bg-red-100 border border-red-400 text-signal-red px-6 py-4 rounded-xl mb-4"
     >
       {{ errorMessage }}
     </div>
-
-    <!-- No Products -->
     <div
       v-else-if="products.length === 0"
       class="text-center py-12 bg-white rounded-xl shadow-md"
     >
-      <p class="text-gray-600">
+      <p class="">
         {{
           selectedCategories.length > 0
             ? "Keine Produkte in den ausgewählten Kategorien gefunden."
@@ -59,11 +52,9 @@
         }}
       </p>
     </div>
-
-    <!-- Products Grid -->
     <div
       v-else
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3  gap-2 md:gap-6"
     >
       <div
         v-for="product in products"
@@ -71,47 +62,39 @@
         @click="goToProduct(product)"
         class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
       >
-        <!-- Product Image Placeholder -->
         <div
           class="bg-gradient-to-br from-gray-100 to-gray-200 h-48 flex items-center justify-center group-hover:from-blue-50 group-hover:to-blue-100 transition-all"
         >
           <span
-            class="text-gray-400 text-4xl group-hover:scale-110 transition-transform"
+            class="text-gray-500 text-4xl group-hover:scale-110 transition-transform"
             >👟</span
           >
         </div>
-
-        <!-- Product Info -->
         <div class="p-4">
           <h3
-            class="font-bold text-lg mb-2 text-gray-800 truncate group-hover:text-blue-600 transition-colors"
+            class="font-bold text-2xl md:text-xl mb-2 truncate group-hover:text-shop-blue-light transition-colors max-md:text-center"
             :title="product.name"
           >
             {{ product.name }}
           </h3>
-
-          <p class="text-gray-600 text-sm mb-3 line-clamp-2 min-h-[2.5rem]">
+          <p class="max-md:hidden text-gray-600 text-sm mb-3 line-clamp-2 min-h-[2.5rem]">
             {{ product.description || "Keine Beschreibung verfügbar" }}
           </p>
-
-          <!-- Price and Category -->
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-2xl font-bold text-blue-600">
-              {{ parseFloat(product.price.toString()).toFixed(2) }} €
+          <div class="flex flex-col md:flex-row justify-between items-center mb-3 max-md:gap-4">
+            <span class="text-2xl font-bold text-shop-blue-light order-2 md:order-1">
+              {{ product.price }} €
             </span>
             <span
               v-if="product.category"
-              class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium"
+              class="text-xs bg-blue-100 px-2 py-1 rounded-full font-medium order-1 md:order-2 max-md:w-full max-md:text-center"
             >
               {{ product.category }}
             </span>
           </div>
-
-          <!-- Seller Info -->
           <div class="border-t border-gray-200 pt-3 mt-3">
             <p class="text-sm text-gray-500">
               Verkäufer:
-              <span class="font-medium text-gray-700">
+              <span class="font-medium">
                 {{ product.seller_first_name }} {{ product.seller_last_name }}
               </span>
             </p>

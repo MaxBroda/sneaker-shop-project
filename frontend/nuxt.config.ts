@@ -4,6 +4,12 @@ export default defineNuxtConfig({
 
   css: ["@/assets/custom.css"],
 
+  app: {
+    head: {
+      link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+    },
+  },
+
   modules: [
     "@nuxt/eslint",
     "@nuxt/fonts",

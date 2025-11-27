@@ -17,7 +17,7 @@
     </div>
 
     <div
-      class="absolute top-12 left-1/2 -translate-x-1/2 bg-white text-shop-blue-dark rounded-xl shadow-xl border z-40 px-4 pb-4 pt-8 w-max transform transition-all duration-300 ease-out"
+      class="absolute top-12 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-xl border z-40 px-4 pb-4 pt-8 w-max transform transition-all duration-300 ease-out"
       :class="{
         'opacity-100 translate-y-0 pointer-events-auto': isOpen,
         'opacity-0 -translate-y-4 pointer-events-none': !isOpen,
@@ -56,13 +56,13 @@
           v-if="!user"
           to="/login"
           @click="closeMenu"
-          class="w-full flex justify-center items-center p-1 bg-signal-red hover:bg-red-800 text-white font-bold rounded-full transition-all duration-200"
+          class="w-full flex justify-center items-center p-1 bg-signal-red text-white font-bold rounded-full transition-all duration-200"
           >Login</NuxtLink
         >
         <NuxtLink
           v-if="user"
           to="/login"
-          class="w-full flex justify-center items-center p-1 bg-signal-red hover:bg-red-800 text-white font-bold rounded-full transition-all duration-200"
+          class="w-full flex justify-center items-center p-1 bg-signal-red text-white font-bold rounded-full transition-all duration-200"
           @click="handleLogout"
           >Logout</NuxtLink
         >

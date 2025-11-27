@@ -6,9 +6,10 @@
   :root {
     --primary-dark-color: #002e4f;
     --secondary-dark-color: #00a6dd;
-    --tertiary-dark-color: #4c688b; /* daeafe */
+    --tertiary-dark-color: #e0eeff; /* daeafe */
     --accent-color: #012a4a;
     --signal-red: #e63946;
+    --signal-green: #2a9d8f;
   }
 
   p,
@@ -21,9 +22,6 @@
 @layer utilities {
   .bg-shop-blue-dark {
     background-color: var(--primary-dark-color);
-  }
-  .text-shop-blue-dark {
-    color: var(--accent-color);
   }
   .text-shop-blue-light {
     color: var(--secondary-dark-color);
@@ -39,5 +37,20 @@
   }
   .bg-signal-red {
     background-color: var(--signal-red);
+  }
+  .bg-signal-red-hover:hover {
+    background-color: #d62828;
+  }
+  .text-signal-red {
+    color: var(--signal-red);
+  }
+  .text-signal-green {
+    color: var(--signal-green);
+  }
+  .accent-shop-blue-dark {
+    accent-color: var(--primary-dark-color);
+  }
+  .accent-shop-blue-light {
+    accent-color: var(--secondary-dark-color);
   }
 }

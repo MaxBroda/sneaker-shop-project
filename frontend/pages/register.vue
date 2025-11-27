@@ -129,8 +129,8 @@
         </button>
       </form>
 
-      <p v-if="error" class="text-red-500 mt-2 text-center">{{ error }}</p>
-      <p v-if="success" class="text-green-600 mt-2 text-center">
+      <p v-if="error" class="text-signal-red mt-2 text-center">{{ error }}</p>
+      <p v-if="success" class="text-signal-green mt-2 text-center">
         Registrierung erfolgreich! Weiterleitung...
       </p>
     </div>
