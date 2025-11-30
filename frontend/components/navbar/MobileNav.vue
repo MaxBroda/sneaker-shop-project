@@ -4,7 +4,7 @@
       <div
         class="flex items-center justify-between py-4 px-6 text-shop-blue-light"
       >
-        <div class="text-lg font-bold text-shop-blue-light">SneakerShop</div>
+        <NuxtLink to="/" class="text-lg font-bold text-shop-blue-light">SneakerShop</NuxtLink>
         <div class="flex items-center text-white">
           <button
             @click="toggleMenu"
@@ -33,6 +33,7 @@
         >
           <NuxtLink
             v-if="user"
+            to="/profile"
             @click="closeMenu"
             class="w-1/2 flex justify-center items-center p-1 bg-shop-bright rounded-full"
             >Profil</NuxtLink

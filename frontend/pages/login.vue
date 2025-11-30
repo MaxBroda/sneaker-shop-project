@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center">
+  <div class="flex flex-col items-center justify-center py-12 min-h-[calc(100vh-200px)]">
     <div class="bg-white shadow-md p-8 rounded-xl w-full max-w-md">
       <h2 class="text-2xl font-bold mb-6 text-center text-black">Login</h2>
 

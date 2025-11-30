@@ -9,13 +9,13 @@
     <transition name="fade">
       <div
         v-if="isOpen"
-        class="absolute -right-5 mt-3 w-52 bg-white text-shop-dark rounded-xl shadow-xl border z-50"
+        class="absolute -right-5 mt-3 w-52 bg-white text-shop-dark rounded-xl shadow-xl border z-50 overflow-hidden"
       >
-        <div class="px-4 py-3 border-b border-gray-200">
-          <h1 class="font-semibold">
+        <div class="px-4 py-1 border-b-2 border-shop-blue-light bg-shop-blue-light">
+          <h1 class="font-semibold text-white">
             {{ user?.firstName }} {{ user?.lastName }}
           </h1>
-          <p class="text-sm text-shop-blue-light">
+          <p class="text-sm opacity-90 font-light text-white">
             {{ getRoleLabel(user?.role) }}
           </p>
         </div>
@@ -29,30 +29,31 @@
               Profil
             </NuxtLink>
           </li>
-
-          <li v-if="user?.role === 'seller'">
+          <li>
             <NuxtLink
-              to="/my-products"
+              to="/profile?section=addresses"
               class="block px-4 py-2 hover:bg-gray-100 transition"
               @click="closeDropdown"
             >
-              Produkte verwalten
+              Adressen
             </NuxtLink>
           </li>
           <li v-if="user?.role === 'customer'">
             <NuxtLink
-              to="/orders"
+              to="/profile?section=orders"
               class="block px-4 py-2 hover:bg-gray-100 transition"
               @click="closeDropdown"
             >
               Bestellungen
             </NuxtLink>
+          </li>
+          <li v-if="user?.role === 'seller'">
             <NuxtLink
-              to="/address-book"
+              to="/profile?section=products"
               class="block px-4 py-2 hover:bg-gray-100 transition"
               @click="closeDropdown"
             >
-              Addressen
+              Produkte verwalten
             </NuxtLink>
           </li>
         </ul>

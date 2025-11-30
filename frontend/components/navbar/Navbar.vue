@@ -4,7 +4,7 @@
       class="hidden md:grid md:grid-cols-3 bg-shop-blue-dark items-center shadow-lg rounded-full text-white pl-6 h-16"
     >
       <div class="flex items-center">
-        <div class="text-2xl font-bold text-shop-blue-light">SneakerShop</div>
+        <NuxtLink to="/" class="text-2xl font-bold text-shop-blue-light">SneakerShop</NuxtLink>
       </div>
       <div class="flex justify-center items-center space-x-4">
         <NavbarMobileNavMenuItems />

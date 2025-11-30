@@ -35,7 +35,7 @@
         <div
           v-for="product in myProducts"
           :key="product.id"
-          class="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 bg-white"
+          class="border border-gray-200 rounded-xl p-4 transition-all duration-300 bg-white"
         >
           <h3 class="font-semibold text-lg mb-2">
             {{ product.name }}
@@ -45,8 +45,8 @@
           </p>
 
           <div class="flex justify-between items-center mb-3">
-            <span class="text-xl font-bold text-blue-600">
-              {{ parseFloat(product.price).toFixed(2) }} €
+            <span class="text-xl font-bold text-shop-blue-light">
+              {{ product.price }} €
             </span>
             <span
               v-if="product.category"

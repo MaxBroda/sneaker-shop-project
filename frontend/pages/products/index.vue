@@ -17,7 +17,7 @@
             type="checkbox"
             :value="category"
             v-model="selectedCategories"
-            class="w-4 h-4 accent-shop-blue-light border-gray-300 rounded focus:ring-shop-blue-dark"
+            class="w-4 h-4 accent-shop-blue-light border-gray-500 rounded focus:ring-shop-blue-dark"
           />
           <span class="text-sm">{{ category }}</span>
         </label>
@@ -54,7 +54,7 @@
     </div>
     <div
       v-else
-      class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3  gap-2 md:gap-6"
+      class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6"
     >
       <div
         v-for="product in products"
@@ -77,7 +77,7 @@
           >
             {{ product.name }}
           </h3>
-          <p class="max-md:hidden text-gray-600 text-sm mb-3 line-clamp-2 min-h-[2.5rem]">
+          <p class="max-md:hidden text-gray-500 text-sm mb-3 line-clamp-2 min-h-[2.5rem]">
             {{ product.description || "Keine Beschreibung verfügbar" }}
           </p>
           <div class="flex flex-col md:flex-row justify-between items-center mb-3 max-md:gap-4">
@@ -196,6 +196,29 @@ function goToProduct(product: Product) {
 }
 
 onMounted(() => {
+  // Check for category query parameter
+  const route = useRoute();
+  if (route.query.category) {
+    const category = route.query.category as string;
+    if (availableCategories.includes(category)) {
+      selectedCategories.value = [category];
+    }
+  }
+  
   fetchProducts();
 });
+
+// Watch for route query changes
+watch(
+  () => useRoute().query.category,
+  (newCategory) => {
+    if (newCategory && typeof newCategory === 'string') {
+      if (availableCategories.includes(newCategory)) {
+        selectedCategories.value = [newCategory];
+      }
+    } else {
+      selectedCategories.value = [];
+    }
+  }
+);
 </script>

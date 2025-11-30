@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center w-full md:max-w-lg mb-20"
+    class="flex flex-col items-center justify-center w-full md:max-w-lg py-12 min-h-[calc(100vh-200px)]"
   >
     <div class="bg-white shadow-md p-8 md:rounded-xl w-full">
       <h2 class="text-2xl font-bold mb-6 text-center">Registrieren</h2>
@@ -15,7 +15,7 @@
             :class="
               role === 'customer'
                 ? 'bg-shop-blue-dark text-white'
-                : 'bg-white text-gray-400 hover:bg-gray-100'
+                : 'bg-white text-gray-500 hover:bg-gray-100'
             "
             @click="role = 'customer'"
           >
@@ -27,7 +27,7 @@
             :class="
               role === 'seller'
                 ? 'bg-shop-blue-dark text-white'
-                : 'bg-white text-gray-400 hover:bg-gray-100'
+                : 'bg-white text-gray-500 hover:bg-gray-100'
             "
             @click="role = 'seller'"
           >
@@ -36,16 +36,16 @@
         </div>
         <div class="flex flex-col md:flex-row gap-4 md:gap-2 w-full">
           <input
-            v-model="lastName"
+            v-model="firstName"
             type="text"
-            placeholder="Nachname"
+            placeholder="Vorname"
             class="border rounded-lg p-2 md:w-1/2"
             required
           />
           <input
-            v-model="firstName"
+            v-model="lastName"
             type="text"
-            placeholder="Vorname"
+            placeholder="Nachname"
             class="border rounded-lg p-2 md:w-1/2"
             required
           />

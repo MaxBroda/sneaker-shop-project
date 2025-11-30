@@ -12,7 +12,7 @@
         @click.self="cancel"
       >
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black bg-opacity-70"></div>
+        <div class="absolute inset-0 bg-black bg-opacity-70" @click="cancel"></div>
 
         <!-- Modal -->
         <Transition
@@ -46,7 +46,7 @@
             <div class="flex gap-3">
               <button
                 @click="cancel"
-                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-500 font-medium hover:bg-gray-50 transition-colors"
+                class="flex-1 px-4 py-2 border border-gray-500 rounded-lg text-gray-500 font-medium hover:bg-gray-50 transition-colors"
               >
                 Abbrechen
               </button>
@@ -85,4 +85,18 @@ function confirm() {
 function cancel() {
   emit("cancel");
 }
+
+function handleEscape(event: KeyboardEvent) {
+  if (event.key === "Escape" && props.isOpen) {
+    cancel();
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("keydown", handleEscape);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("keydown", handleEscape);
+});
 </script>
