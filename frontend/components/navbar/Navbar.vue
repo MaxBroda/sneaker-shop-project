@@ -21,16 +21,16 @@
           <NuxtLink
             v-if="user && user.role === 'seller'"
             to="/add-product"
-            class="hover:text-shop-blue-light flex items-center justify-center"
+            class="hover:text-shop-blue-light flex items-center justify-center transition-all hover:scale-110"
           >
             <Icon name="mdi:plus-thick" class="w-6 h-6 text-white" />
           </NuxtLink>
           <NuxtLink
             v-if="user && user.role === 'customer'"
             to="/cart"
-            class="hover:text-shop-blue-light flex items-center justify-center"
+            class="hover:text-shop-blue-light flex items-center justify-center transition-all hover:scale-110"
           >
-            <Icon name="mdi:shopping-cart" class="w-5 h-5 text-white" />
+            <Icon name="mdi:shopping-cart" class="w-6 h-6 text-white" />
           </NuxtLink>
           <AccountModal />
           <button

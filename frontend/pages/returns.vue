@@ -7,7 +7,6 @@
       30 Tage Rückgaberecht - kostenlos und unkompliziert
     </p>
 
-    <!-- Rückgabefrist -->
     <section class="mb-12">
       <div class="bg-gradient-to-br from-shop-blue-dark to-shop-blue-light text-white p-8 rounded-xl">
         <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -23,7 +22,6 @@
       </div>
     </section>
 
-    <!-- Voraussetzungen -->
     <section class="mb-12">
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -63,7 +61,6 @@
       </div>
     </section>
 
-    <!-- Rückgabeprozess -->
     <section class="mb-12">
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -121,7 +118,6 @@
       </div>
     </section>
 
-    <!-- Umtausch -->
     <section class="mb-12">
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -145,7 +141,6 @@
       </div>
     </section>
 
-    <!-- Ausnahmen -->
     <section>
       <div class="bg-white p-8 rounded-xl shadow-md border-l-4 border-yellow-400">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -173,7 +168,6 @@
       </div>
     </section>
 
-    <!-- Contact CTA -->
     <div class="mt-12 bg-gray-50 p-8 rounded-xl text-center">
       <h2 class="text-2xl font-bold mb-4 text-shop-blue-dark">Fragen zur Rückgabe?</h2>
       <p class="mb-6">Unser Kundenservice hilft dir gerne weiter!</p>

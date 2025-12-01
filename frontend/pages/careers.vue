@@ -1,6 +1,5 @@
 <template>
   <div class="container mx-auto px-4 py-12 max-w-5xl">
-    <!-- Header -->
     <div class="text-center mb-16">
       <h1 class="text-4xl md:text-5xl font-bold mb-4 text-shop-blue-dark">
         Karriere bei EcoStep
@@ -9,8 +8,6 @@
         Werde Teil unserer Mission und gestalte die Zukunft nachhaltiger Mode mit.
       </p>
     </div>
-
-    <!-- Why Join Us Section -->
     <section class="mb-16">
       <div class="bg-gradient-to-br from-shop-blue-dark to-shop-blue-light p-8 md:p-12 rounded-xl shadow-lg">
         <h2 class="text-3xl font-bold mb-6 text-white">Warum EcoStep?</h2>
@@ -55,7 +52,6 @@
       </div>
     </section>
 
-    <!-- Open Positions -->
     <section class="mb-16">
       <h2 class="text-3xl font-bold mb-8 text-center text-shop-blue-dark">
         Offene Stellen
@@ -147,7 +143,6 @@
       </div>
     </section>
 
-    <!-- Spontaneous Application -->
     <section class="bg-gray-50 p-8 md:p-12 rounded-xl border-l-4 border-shop-blue-light">
       <h2 class="text-2xl font-bold mb-4 text-shop-blue-dark">
         Nichts Passendes dabei?
@@ -167,5 +162,4 @@
 </template>
 
 <script setup lang="ts">
-// Page could include application form logic here
 </script>

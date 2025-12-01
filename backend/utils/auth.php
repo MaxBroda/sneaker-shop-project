@@ -5,14 +5,11 @@ function authenticate()
 {
     global $pdo;
 
-    // Try multiple ways to get the Authorization header
     $authHeader = null;
 
-    // Debug: Log all headers
     error_log("All headers: " . print_r(getallheaders(), true));
     error_log("HTTP_AUTHORIZATION: " . ($_SERVER['HTTP_AUTHORIZATION'] ?? 'not set'));
 
-    // Method 1: getallheaders()
     if (function_exists('getallheaders')) {
         $headers = getallheaders();
         if (isset($headers['Authorization'])) {
@@ -22,12 +19,10 @@ function authenticate()
         }
     }
 
-    // Method 2: $_SERVER['HTTP_AUTHORIZATION']
     if (!$authHeader && isset($_SERVER['HTTP_AUTHORIZATION'])) {
         $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
     }
 
-    // Method 3: apache_request_headers()
     if (!$authHeader && function_exists('apache_request_headers')) {
         $headers = apache_request_headers();
         if (isset($headers['Authorization'])) {

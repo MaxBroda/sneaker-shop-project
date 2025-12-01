@@ -43,6 +43,9 @@ try {
             price REAL NOT NULL,
             image TEXT,
             category TEXT,
+            technical_specs TEXT,
+            tag_icon TEXT,
+            tag_text TEXT,
             seller_id INTEGER,
             FOREIGN KEY (seller_id) REFERENCES users(id)
         );

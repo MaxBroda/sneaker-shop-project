@@ -12,14 +12,14 @@ class Product
     /**
      * Create a new product
      */
-    public function create($name, $description, $price, $sellerId, $image = null, $category = null)
+    public function create($name, $description, $price, $sellerId, $image = null, $category = null, $technicalSpecs = null, $tagIcon = null, $tagText = null)
     {
         $stmt = $this->pdo->prepare("
-            INSERT INTO products (name, description, price, seller_id, image, category)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO products (name, description, price, seller_id, image, category, technical_specs, tag_icon, tag_text)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
-        $stmt->execute([$name, $description, $price, $sellerId, $image, $category]);
+        $stmt->execute([$name, $description, $price, $sellerId, $image, $category, $technicalSpecs, $tagIcon, $tagText]);
 
         return [
             'id' => $this->pdo->lastInsertId(),
@@ -28,7 +28,10 @@ class Product
             'price' => $price,
             'seller_id' => $sellerId,
             'image' => $image,
-            'category' => $category
+            'category' => $category,
+            'technical_specs' => $technicalSpecs,
+            'tag_icon' => $tagIcon,
+            'tag_text' => $tagText
         ];
     }
 
@@ -95,15 +98,17 @@ class Product
     /**
      * Update a product
      */
-    public function update($id, $name, $description, $price, $image = null, $category = null)
+    public function update($id, $name, $description, $price, $image = null, $category = null, $technicalSpecs = null, $tagIcon = null, $tagText = null)
     {
         $stmt = $this->pdo->prepare("
             UPDATE products 
-            SET name = ?, description = ?, price = ?, image = ?, category = ?
+            SET name = ?, description = ?, price = ?, image = ?, category = ?, technical_specs = ?, tag_icon = ?, tag_text = ?
             WHERE id = ?
         ");
 
-        return $stmt->execute([$name, $description, $price, $image, $category, $id]);
+        $stmt->execute([$name, $description, $price, $image, $category, $technicalSpecs, $tagIcon, $tagText, $id]);
+
+        return $this->getById($id);
     }
 
     /**

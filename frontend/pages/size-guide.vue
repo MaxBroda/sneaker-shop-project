@@ -7,7 +7,6 @@
       Finde deine perfekte Passform
     </p>
 
-    <!-- Größentabelle -->
     <section class="mb-12">
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -97,7 +96,6 @@
       </div>
     </section>
 
-    <!-- Fußlänge messen -->
     <section class="mb-12">
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -158,7 +156,6 @@
       </div>
     </section>
 
-    <!-- Passform-Tipps -->
     <section class="mb-12">
       <div class="bg-gradient-to-br from-shop-blue-dark to-shop-blue-light text-white p-8 rounded-xl">
         <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -194,7 +191,6 @@
       </div>
     </section>
 
-    <!-- Unsicher? -->
     <section>
       <div class="bg-gray-50 p-8 rounded-xl border-l-4 border-shop-blue-light text-center">
         <h2 class="text-2xl font-bold mb-4 text-shop-blue-dark">Immer noch unsicher?</h2>

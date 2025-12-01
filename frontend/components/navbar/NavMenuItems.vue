@@ -1,7 +1,8 @@
 <template>
   <NuxtLink
     to="/"
-    class="hover:text-shop-blue-light md:text-white"
+    class="hover:text-shop-blue-light md:text-white transition-colors duration-200"
+    :class="{ '!text-shop-blue-light': $route.path === '/' }"
     @click="emit('linkClicked')"
     >Home</NuxtLink
   >
@@ -9,7 +10,8 @@
 
   <NuxtLink
     to="/products"
-    class="hover:text-shop-blue-light md:text-white"
+    class="hover:text-shop-blue-light md:text-white transition-colors duration-200"
+    :class="{ '!text-shop-blue-light': $route.path === '/products' || $route.path.startsWith('/products/') }"
     @click="emit('linkClicked')"
     >Produkte</NuxtLink
   >
@@ -17,7 +19,8 @@
 
   <NuxtLink
     to="/about"
-    class="hover:text-shop-blue-light md:text-white"
+    class="hover:text-shop-blue-light md:text-white transition-colors duration-200"
+    :class="{ '!text-shop-blue-light': $route.path === '/about' }"
     @click="emit('linkClicked')"
     >Info</NuxtLink
   >
@@ -25,7 +28,8 @@
 
   <NuxtLink
     to="/contact"
-    class="hover:text-shop-blue-light md:text-white"
+    class="hover:text-shop-blue-light md:text-white transition-colors duration-200"
+    :class="{ '!text-shop-blue-light': $route.path === '/contact' }"
     @click="emit('linkClicked')"
     >Kontakt</NuxtLink
   >

@@ -98,7 +98,6 @@
       </form>
     </div>
 
-    <!-- Addresses List -->
     <div
       v-if="addresses.length === 0 && !showAddressForm"
       class="text-center py-8 text-gray-500"
@@ -194,7 +193,6 @@ const addressForm = reactive({
 
 onMounted(() => {
   if (typeof window !== "undefined" && user.value) {
-    // Use user-specific key for addresses
     const userAddressKey = `user_addresses_${user.value.id}`;
     const userDefaultIndexKey = `default_address_index_${user.value.id}`;
     

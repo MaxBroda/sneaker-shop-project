@@ -5,7 +5,6 @@
     </h1>
 
     <div class="space-y-4">
-      <!-- Bestellung & Zahlung -->
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <details class="group">
           <summary class="p-6 cursor-pointer font-semibold text-lg text-shop-blue-dark hover:bg-gray-50 transition-colors flex justify-between items-center">
@@ -54,7 +53,6 @@
         </details>
       </div>
 
-      <!-- Versand -->
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <details class="group">
           <summary class="p-6 cursor-pointer font-semibold text-lg text-shop-blue-dark hover:bg-gray-50 transition-colors flex justify-between items-center">
@@ -79,7 +77,6 @@
         </details>
       </div>
 
-      <!-- Produkt & Größe -->
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <details class="group">
           <summary class="p-6 cursor-pointer font-semibold text-lg text-shop-blue-dark hover:bg-gray-50 transition-colors flex justify-between items-center">
@@ -116,7 +113,6 @@
         </details>
       </div>
 
-      <!-- Rückgabe -->
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <details class="group">
           <summary class="p-6 cursor-pointer font-semibold text-lg text-shop-blue-dark hover:bg-gray-50 transition-colors flex justify-between items-center">
@@ -129,7 +125,6 @@
         </details>
       </div>
 
-      <!-- Kundenkonto -->
       <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <details class="group">
           <summary class="p-6 cursor-pointer font-semibold text-lg text-shop-blue-dark hover:bg-gray-50 transition-colors flex justify-between items-center">
@@ -143,7 +138,6 @@
       </div>
     </div>
 
-    <!-- Contact CTA -->
     <div class="mt-12 bg-gray-50 p-8 rounded-xl border-l-4 border-shop-blue-light text-center">
       <h2 class="text-2xl font-bold mb-4 text-shop-blue-dark">Deine Frage ist nicht dabei?</h2>
       <p class="mb-6">Unser Kundenservice hilft dir gerne weiter!</p>

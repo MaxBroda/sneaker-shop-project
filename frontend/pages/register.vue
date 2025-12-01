@@ -1,8 +1,8 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center w-full md:max-w-lg py-12 min-h-[calc(100vh-200px)]"
+    class="flex flex-col items-center justify-center w-full py-12 min-h-[calc(100vh-200px)] px-4"
   >
-    <div class="bg-white shadow-md p-8 md:rounded-xl w-full">
+    <div class="bg-white shadow-md p-8 md:rounded-xl w-full md:max-w-lg">
       <h2 class="text-2xl font-bold mb-6 text-center">Registrieren</h2>
 
       <form @submit.prevent="registerUser" class="flex flex-col gap-4">

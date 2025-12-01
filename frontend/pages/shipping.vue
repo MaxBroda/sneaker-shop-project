@@ -7,7 +7,6 @@
       Schnell, sicher und klimaneutral zu dir nach Hause
     </p>
 
-    <!-- Versandkosten -->
     <section class="mb-12">
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -40,7 +39,6 @@
       </div>
     </section>
 
-    <!-- Lieferzeiten -->
     <section class="mb-12">
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -70,7 +68,6 @@
       </div>
     </section>
 
-    <!-- Versandpartner -->
     <section class="mb-12">
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">
@@ -90,7 +87,6 @@
       </div>
     </section>
 
-    <!-- Tracking -->
     <section class="mb-12">
       <div class="bg-gradient-to-br from-shop-blue-dark to-shop-blue-light text-white p-8 rounded-xl">
         <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -117,7 +113,6 @@
       </div>
     </section>
 
-    <!-- Verpackung -->
     <section>
       <div class="bg-white p-8 rounded-xl shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark flex items-center gap-2">

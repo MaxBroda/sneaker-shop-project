@@ -32,8 +32,8 @@
   .bg-shop-bright {
     background-color: var(--tertiary-dark-color);
   }
-  .border-shop-blue-light {
-    border-color: var(--secondary-dark-color);
+  .border-shop-blue-dark {
+    border-color: var(--primary-dark-color);
   }
   .border-shop-blue-light {
     border-color:  var(--secondary-dark-color);
@@ -58,5 +58,23 @@
   }
   .ring-shop-blue-dark {
     --tw-ring-color: var(--secondary-dark-color);
+  }
+  
+  .scroll-fade {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  
+  .scroll-fade.show {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  
+  .min-h-55vh {
+    min-height: 55vh;
+  }
+  .custom-select:invalid {
+    color: #9ca3af;
   }
 }

@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 require_once __DIR__ . '/../utils/db_connection.php';
@@ -13,9 +13,7 @@ $productModel = new Product($pdo);
 try {
     $method = $_SERVER['REQUEST_METHOD'];
 
-    // GET: Fetch products (all or by seller)
     if ($method === 'GET') {
-        // Check if we need to filter by seller_id
         if (isset($_GET['seller_id'])) {
             $sellerId = intval($_GET['seller_id']);
             $products = $productModel->getBySellerId($sellerId);
@@ -30,12 +28,10 @@ try {
         exit;
     }
 
-    // POST: Create a new product (requires authentication and seller role)
     if ($method === 'POST') {
         require_once __DIR__ . '/../utils/auth.php';
         $user = authenticate();
 
-        // Check if user is a seller
         if ($user['role'] !== 'seller') {
             http_response_code(403);
             echo json_encode([
@@ -47,7 +43,6 @@ try {
 
         $data = json_decode(file_get_contents('php://input'), true);
 
-        // Validate required fields
         if (!isset($data['name']) || !isset($data['price'])) {
             http_response_code(400);
             echo json_encode([
@@ -62,8 +57,10 @@ try {
         $price = floatval($data['price']);
         $image = isset($data['image']) ? trim($data['image']) : null;
         $category = isset($data['category']) ? trim($data['category']) : null;
+        $technicalSpecs = isset($data['technical_specs']) ? trim($data['technical_specs']) : null;
+        $tagIcon = isset($data['tag_icon']) ? trim($data['tag_icon']) : null;
+        $tagText = isset($data['tag_text']) ? trim($data['tag_text']) : null;
 
-        // Validate price
         if ($price <= 0) {
             http_response_code(400);
             echo json_encode([
@@ -79,7 +76,10 @@ try {
             $price,
             $user['id'],
             $image,
-            $category
+            $category,
+            $technicalSpecs,
+            $tagIcon,
+            $tagText
         );
 
         echo json_encode([
@@ -90,12 +90,94 @@ try {
         exit;
     }
 
-    // DELETE: Delete a product (requires authentication and ownership)
+    if ($method === 'PUT') {
+        require_once __DIR__ . '/../utils/auth.php';
+        $user = authenticate();
+
+        if ($user['role'] !== 'seller') {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Nur Verkäufer können Produkte bearbeiten'
+            ]);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($data['id']) || !isset($data['name']) || !isset($data['price'])) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'ID, Name und Preis sind erforderlich'
+            ]);
+            exit;
+        }
+
+        $productId = intval($data['id']);
+        
+        $product = $productModel->getById($productId);
+
+        if (!$product) {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Produkt nicht gefunden'
+            ]);
+            exit;
+        }
+
+        if ($product['seller_id'] != $user['id']) {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Sie können nur Ihre eigenen Produkte bearbeiten'
+            ]);
+            exit;
+        }
+
+        $name = trim($data['name']);
+        $description = isset($data['description']) ? trim($data['description']) : '';
+        $price = floatval($data['price']);
+        $image = isset($data['image']) ? trim($data['image']) : $product['image'];
+        $category = isset($data['category']) ? trim($data['category']) : $product['category'];
+        $technicalSpecs = isset($data['technical_specs']) ? trim($data['technical_specs']) : $product['technical_specs'];
+        $tagIcon = isset($data['tag_icon']) ? trim($data['tag_icon']) : $product['tag_icon'];
+        $tagText = isset($data['tag_text']) ? trim($data['tag_text']) : $product['tag_text'];
+
+        if ($price <= 0) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Der Preis muss größer als 0 sein'
+            ]);
+            exit;
+        }
+
+        $updatedProduct = $productModel->update(
+            $productId,
+            $name,
+            $description,
+            $price,
+            $image,
+            $category,
+            $technicalSpecs,
+            $tagIcon,
+            $tagText
+        );
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Produkt erfolgreich aktualisiert',
+            'data' => $updatedProduct
+        ]);
+        exit;
+    }
+
     if ($method === 'DELETE') {
         require_once __DIR__ . '/../utils/auth.php';
         $user = authenticate();
 
-        // Check if user is a seller
         if ($user['role'] !== 'seller') {
             http_response_code(403);
             echo json_encode([
@@ -105,7 +187,6 @@ try {
             exit;
         }
 
-        // Get product ID from query parameter
         if (!isset($_GET['id'])) {
             http_response_code(400);
             echo json_encode([
@@ -117,7 +198,6 @@ try {
 
         $productId = intval($_GET['id']);
 
-        // Check if product exists and belongs to the seller
         $product = $productModel->getById($productId);
 
         if (!$product) {
@@ -138,7 +218,10 @@ try {
             exit;
         }
 
-        // Delete the product
+        if (!empty($product['image']) && file_exists(__DIR__ . '/../uploads/' . $product['image'])) {
+            unlink(__DIR__ . '/../uploads/' . $product['image']);
+        }
+
         $productModel->delete($productId);
 
         echo json_encode([
@@ -148,7 +231,6 @@ try {
         exit;
     }
 
-    // Method not allowed
     http_response_code(405);
     echo json_encode([
         'success' => false,

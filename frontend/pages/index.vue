@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Hero Section -->
     <section class="relative bg-gradient-to-br from-shop-blue-dark via-shop-blue-light to-shop-blue-dark text-white py-20 md:py-32">
       <div class="container mx-auto px-4 max-w-6xl">
         <div class="text-center">
@@ -29,14 +28,13 @@
       </div>
     </section>
 
-    <!-- Features Section -->
     <section class="py-16 md:py-24 bg-gray-50">
       <div class="container mx-auto px-4 max-w-6xl">
-        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-shop-blue-dark">
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-shop-blue-dark scroll-fade">
           Warum EcoStep?
         </h2>
         <div class="grid md:grid-cols-3 gap-8">
-          <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow">
+          <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all hover:scale-105 scroll-fade">
             <div class="text-4xl mb-4">🌱</div>
             <h3 class="text-xl font-bold mb-3 text-shop-blue-dark">100% Nachhaltig</h3>
             <p class="">
@@ -44,7 +42,7 @@
               Jeder Schritt zählt.
             </p>
           </div>
-          <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow">
+          <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all hover:scale-105 scroll-fade">
             <div class="text-4xl mb-4">⚡</div>
             <h3 class="text-xl font-bold mb-3 text-shop-blue-dark">Innovation trifft Design</h3>
             <p class="">
@@ -52,7 +50,7 @@
               aktiven Lifestyle.
             </p>
           </div>
-          <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow">
+          <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all hover:scale-105 scroll-fade">
             <div class="text-4xl mb-4">✨</div>
             <h3 class="text-xl font-bold mb-3 text-shop-blue-dark">Style & Komfort</h3>
             <p class="">
@@ -64,10 +62,9 @@
       </div>
     </section>
 
-    <!-- Stats Section -->
     <section class="py-16 md:py-20 bg-shop-blue-dark text-white">
       <div class="container mx-auto px-4 max-w-6xl">
-        <div class="grid md:grid-cols-4 gap-8 text-center">
+        <div class="grid md:grid-cols-4 gap-8 text-center scroll-fade">
           <div>
             <div class="text-4xl md:text-5xl font-bold mb-2 text-white">15.000+</div>
             <p class="text-shop-blue-light">Zufriedene Kunden</p>
@@ -88,9 +85,8 @@
       </div>
     </section>
 
-    <!-- CTA Section -->
     <section class="py-16 md:py-24">
-      <div class="container mx-auto px-4 max-w-4xl text-center">
+      <div class="container mx-auto px-4 max-w-4xl text-center scroll-fade">
         <h2 class="text-3xl md:text-4xl font-bold mb-6 text-shop-blue-dark">
           Bereit für den nächsten Schritt?
         </h2>
@@ -99,7 +95,7 @@
         </p>
         <NuxtLink
           to="/products"
-          class="inline-block px-10 py-4 bg-shop-blue-light text-white rounded-lg font-semibold hover:bg-shop-blue-dark transition-all shadow-lg text-lg"
+          class="inline-block px-10 py-4 bg-shop-blue-light text-white rounded-lg font-semibold hover:bg-shop-blue-dark transition-all shadow-lg text-lg hover:scale-105"
         >
           Zur Kollektion
         </NuxtLink>

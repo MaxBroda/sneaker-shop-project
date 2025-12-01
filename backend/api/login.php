@@ -19,7 +19,6 @@ try {
     $email = trim($data['email']);
     $password = $data['password'];
 
-    // User abrufen
     $stmt = $pdo->prepare("SELECT id, email, first_name, last_name, password_hash, role FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,15 +29,12 @@ try {
         exit;
     }
 
-    // Adresse abrufen
     $addrStmt = $pdo->prepare("SELECT street,house_number, city, postal_code, country FROM addresses WHERE user_id = ?");
     $addrStmt->execute([$user['id']]);
     $address = $addrStmt->fetch(PDO::FETCH_ASSOC);
 
-    // Token generieren
     $token = base64_encode(random_bytes(32));
 
-    // In der DB speichern
     $stmt = $pdo->prepare("INSERT INTO user_tokens (user_id, token) VALUES (?, ?)");
     $stmt->execute([$user['id'], $token]);
 

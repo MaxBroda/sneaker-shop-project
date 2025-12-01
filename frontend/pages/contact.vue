@@ -1,7 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-12 max-w-5xl">
-    <!-- Header -->
-    <div class="text-center mb-12">
+    <div class="text-center mb-12 scroll-fade">
       <h1 class="text-4xl md:text-5xl font-bold mb-4 text-shop-blue-dark">
         Kontaktiere uns
       </h1>
@@ -11,8 +10,7 @@
     </div>
 
     <div class="grid md:grid-cols-2 gap-12">
-      <!-- Contact Form -->
-      <div class="bg-white p-8 rounded-xl shadow-lg">
+      <div class="bg-white p-8 rounded-xl shadow-lg scroll-fade">
         <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark">Schreib uns</h2>
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
@@ -21,7 +19,7 @@
               v-model="form.name"
               type="text"
               required
-              class="w-full px-4 py-3 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-dark transition-all"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-shop-blue-light bg-white transition-all hover:bg-blue-50 hover:border-shop-blue-light"
               placeholder="Max Mustermann"
             />
           </div>
@@ -31,25 +29,28 @@
               v-model="form.email"
               type="email"
               required
-              class="w-full px-4 py-3 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-dark transition-all"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-shop-blue-light bg-white transition-all hover:bg-blue-50 hover:border-shop-blue-light"
               placeholder="max@beispiel.de"
             />
           </div>
           <div>
             <label class="block text-sm font-medium mb-2 ">Betreff</label>
-            <select
-              v-model="form.subject"
-              required
-              class="w-full px-4 py-3 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-dark transition-all"
-            >
-              <option value="" disabled>Bitte wählen...</option>
-              <option value="product">Produktanfrage</option>
-              <option value="order">Bestellstatus</option>
-              <option value="return">Rückgabe & Umtausch</option>
-              <option value="partnership">Partnerschaft</option>
-              <option value="application">Bewerbung</option>
-              <option value="other">Sonstiges</option>
-            </select>
+            <div class="relative">
+              <select
+                v-model="form.subject"
+                required
+                class="custom-select w-full px-4 py-3 pr-10 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-shop-blue-light bg-white transition-all hover:bg-blue-50 hover:border-shop-blue-light cursor-pointer appearance-none"
+              >
+                <option value="" disabled>Bitte wählen...</option>
+                <option value="product">Produktanfrage</option>
+                <option value="order">Bestellstatus</option>
+                <option value="return">Rückgabe & Umtausch</option>
+                <option value="partnership">Partnerschaft</option>
+                <option value="application">Bewerbung</option>
+                <option value="other">Sonstiges</option>
+              </select>
+              <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+            </div>
           </div>
           <div>
             <label class="block text-sm font-medium mb-2 ">Nachricht</label>
@@ -57,7 +58,7 @@
               v-model="form.message"
               required
               rows="5"
-              class="w-full px-4 py-3 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-dark transition-all resize-none"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-shop-blue-light bg-white transition-all hover:bg-blue-50 hover:border-shop-blue-light resize-none"
               placeholder="Wie können wir dir helfen?"
             ></textarea>
           </div>
@@ -71,15 +72,15 @@
         </form>
         <div
           v-if="successMessage"
-          class="mt-4 bg-green-100 border border-green-400 text-signal-green px-4 py-3 rounded-lg"
+          class="mt-4 bg-green-50 border-l-4 border-signal-green text-signal-green px-4 py-3 rounded-lg flex items-start gap-3"
         >
-          {{ successMessage }}
+          <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <span>{{ successMessage }}</span>
         </div>
       </div>
 
-      <!-- Contact Info -->
       <div class="space-y-8">
-        <div class="bg-white p-8 rounded-xl shadow-lg">
+        <div class="bg-white p-8 rounded-xl shadow-lg scroll-fade">
           <h2 class="text-2xl font-bold mb-6 text-shop-blue-dark">Kontaktinformationen</h2>
           <div class="space-y-4">
             <div class="flex items-start gap-4">
@@ -112,7 +113,7 @@
           </div>
         </div>
 
-        <div class="bg-gradient-to-br from-shop-blue-dark to-shop-blue-light text-white p-8 rounded-xl">
+        <div class="bg-gradient-to-br from-shop-blue-dark to-shop-blue-light text-white p-8 rounded-xl scroll-fade">
           <h3 class="text-xl font-bold mb-4">Öffnungszeiten</h3>
           <div class="space-y-2">
             <div class="flex justify-between">
@@ -130,7 +131,7 @@
           </div>
         </div>
 
-        <div class="bg-gray-50 p-8 rounded-xl border-l-4 border-shop-blue-light">
+        <div class="bg-gray-50 p-8 rounded-xl border-l-4 border-shop-blue-light scroll-fade">
           <h3 class="font-bold mb-2 text-shop-blue-dark flex items-center gap-2">
             <Icon name="mdi:share-variant" class="w-5 h-5" />
             Social Media
@@ -172,15 +173,12 @@ const successMessage = ref('');
 async function handleSubmit() {
   isSubmitting.value = true;
   
-  // Simulate API call
   await new Promise(resolve => setTimeout(resolve, 1000));
   
-  // TODO: Implement actual API call to backend
   console.log('Form submitted:', form);
   
   successMessage.value = 'Vielen Dank für deine Nachricht! Wir melden uns bald bei dir.';
   
-  // Reset form
   form.name = '';
   form.email = '';
   form.subject = '';
@@ -188,7 +186,6 @@ async function handleSubmit() {
   
   isSubmitting.value = false;
   
-  // Clear success message after 5 seconds
   setTimeout(() => {
     successMessage.value = '';
   }, 5000);
