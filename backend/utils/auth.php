@@ -7,9 +7,6 @@ function authenticate()
 
     $authHeader = null;
 
-    error_log("All headers: " . print_r(getallheaders(), true));
-    error_log("HTTP_AUTHORIZATION: " . ($_SERVER['HTTP_AUTHORIZATION'] ?? 'not set'));
-
     if (function_exists('getallheaders')) {
         $headers = getallheaders();
         if (isset($headers['Authorization'])) {
@@ -31,8 +28,6 @@ function authenticate()
             $authHeader = $headers['authorization'];
         }
     }
-
-    error_log("Final auth header: " . ($authHeader ?? 'NULL'));
 
     if (!$authHeader) {
         http_response_code(401);
@@ -57,4 +52,19 @@ function authenticate()
     }
 
     return $user;
+}
+
+function getUserFromToken($token, $pdo) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT users.id, users.email, users.first_name, users.last_name, users.role
+            FROM users
+            JOIN user_tokens ON users.id = user_tokens.user_id
+            WHERE user_tokens.token = ?
+        ");
+        $stmt->execute([$token]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return null;
+    }
 }

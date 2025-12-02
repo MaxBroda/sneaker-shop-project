@@ -239,7 +239,8 @@
 </template>
 
 <script setup lang="ts">
-const API_URL = "http://localhost:8080/api";
+const config = useRuntimeConfig();
+const API_URL = config.public.apiUrl;
 const { token } = useAuth();
 
 interface Product {
@@ -296,7 +297,7 @@ watch(() => props.product, (product) => {
     form.tagText = product.tag_text || "";
     
     if (product.image) {
-      imagePreview.value = `http://localhost:8080/uploads/${product.image}`;
+      imagePreview.value = `${config.public.uploadsUrl}/${product.image}`;
       uploadedImageFilename.value = product.image;
     }
   }

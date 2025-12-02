@@ -33,7 +33,7 @@
             <div class="bg-white rounded-xl md:rounded-2xl shadow-lg md:shadow-xl overflow-hidden p-3 md:p-4">
               <div class="bg-gradient-to-br from-gray-100 to-gray-200 aspect-[5/4] rounded-lg md:rounded-xl overflow-hidden mb-3 md:mb-4">
                 <img
-                  :src="`http://localhost:8080/uploads/${product.image}`"
+                  :src="`${config.public.uploadsUrl}/${product.image}`"
                   :alt="product.name"
                   loading="eager"
                   class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
@@ -90,19 +90,38 @@
                   <button
                     v-for="size in [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]"
                     :key="size"
-                    class="border-2 border-gray-300 rounded-lg py-2 text-sm font-medium hover:border-shop-blue-light hover:bg-shop-blue-light/10 transition-all"
+                    @click="selectedSize = size.toString()"
+                    :class="[
+                      'border-2 rounded-lg py-2 text-sm font-medium transition-all',
+                      selectedSize === size.toString()
+                        ? 'border-shop-blue-light bg-shop-blue-light text-white'
+                        : 'border-gray-300 hover:border-shop-blue-light hover:bg-shop-blue-light/10'
+                    ]"
                   >
                     {{ size }}
                   </button>
                 </div>
               </div>
               <button
-                @click="addToCart"
-                class="w-full bg-shop-blue-light hover:bg-shop-blue-dark text-white py-3 md:py-4 px-6 rounded-xl font-bold text-base md:text-lg shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 mb-3 md:mb-4"
+                @click="handleAddToCart"
+                :disabled="!selectedSize || isAddingToCart"
+                :class="[
+                  'w-full py-3 md:py-4 px-6 rounded-xl font-bold text-base md:text-lg shadow-md transition-all duration-300 flex items-center justify-center gap-2 mb-3 md:mb-4',
+                  selectedSize && !isAddingToCart
+                    ? 'bg-shop-blue-light hover:bg-shop-blue-dark text-white hover:shadow-xl hover:scale-105'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ]"
               >
-                <Icon name="mdi:cart-plus" class="w-6 h-6 text-white" />
-                In den Warenkorb
+                <Icon v-if="isAddingToCart" name="mdi:loading" class="w-6 h-6 text-white animate-spin" />
+                <Icon v-else name="mdi:cart-plus" class="w-6 h-6 text-white" />
+                {{ isAddingToCart ? 'Wird hinzugefügt...' : 'In den Warenkorb' }}
               </button>
+              <p v-if="!selectedSize" class="text-sm text-signal-red text-center mb-4">
+                Bitte wähle eine Größe aus
+              </p>
+              <p v-if="addToCartMessage" :class="['text-sm text-center mb-4', addToCartSuccess ? 'text-signal-green' : 'text-signal-red']">
+                {{ addToCartMessage }}
+              </p>
               <div class="pt-6 border-t border-gray-200">
                 <ul class="space-y-3">
                   <li class="flex items-center gap-3">
@@ -249,8 +268,13 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useCart } from "~/composables/useCart";
+
 const route = useRoute();
-const API_URL = "http://localhost:8080/api";
+const config = useRuntimeConfig();
+const API_URL = config.public.apiUrl;
+
+const { addToCart, fetchCart } = useCart();
 
 interface Product {
   id: number;
@@ -269,6 +293,10 @@ interface Product {
 const product = ref<Product | null>(null);
 const isLoading = ref(true);
 const errorMessage = ref("");
+const selectedSize = ref<string>("");
+const isAddingToCart = ref(false);
+const addToCartMessage = ref("");
+const addToCartSuccess = ref(false);
 
 const slug = route.params.slug as string;
 const productId = parseInt(slug.split("-").pop() || "0");
@@ -299,10 +327,39 @@ async function fetchProduct() {
   }
 }
 
-function addToCart() {
-  if (product.value) {
-    console.log('Added to cart:', product.value);
-    alert(`${product.value.name} wurde zum Warenkorb hinzugefügt!`);
+async function handleAddToCart() {
+  if (!product.value || !selectedSize.value) {
+    addToCartMessage.value = "Bitte wähle eine Größe aus";
+    addToCartSuccess.value = false;
+    return;
+  }
+
+  isAddingToCart.value = true;
+  addToCartMessage.value = "";
+
+  try {
+    const result = await addToCart(product.value.id, selectedSize.value, 1);
+    
+    if (result.success) {
+      addToCartSuccess.value = true;
+      setTimeout(() => {
+        isAddingToCart.value = false;
+        addToCartMessage.value = result.message || "Zum Warenkorb hinzugefügt!";
+      }, 1000);
+
+      setTimeout(() => {
+        addToCartMessage.value = "";
+      }, 3000);
+    } else {
+      addToCartMessage.value = result.message || "Fehler beim Hinzufügen";
+      addToCartSuccess.value = false;
+      isAddingToCart.value = false;
+    }
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    addToCartMessage.value = "Fehler beim Hinzufügen zum Warenkorb";
+    addToCartSuccess.value = false;
+    isAddingToCart.value = false;
   }
 }
 

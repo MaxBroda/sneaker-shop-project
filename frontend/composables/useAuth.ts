@@ -26,8 +26,8 @@ interface ApiResponse<T = unknown> {
 export const useAuth = () => {
   const user = useState<User | null>("user", () => null);
   const token = useState<string | null>("token", () => null);
-
-  const API_URL = "http://localhost:8080/api";
+  const config = useRuntimeConfig();
+  const API_URL = config.public.apiUrl;
 
   // Initialize from localStorage on client side only
   onMounted(() => {
@@ -63,9 +63,10 @@ export const useAuth = () => {
 
       console.warn("Anmeldung fehlgeschlagen:", res.message);
       return { success: false, message: res.message || "Login fehlgeschlagen" };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Anmeldefehler:", err);
-      return { success: false, message: err?.data?.message || "Netzwerk- oder Serverfehler" };
+      const error = err as { data?: { message?: string } };
+      return { success: false, message: error?.data?.message || "Netzwerk- oder Serverfehler" };
     }
   }
 
@@ -126,8 +127,11 @@ export const useAuth = () => {
       localStorage.removeItem("user");
 
       console.log("Erfolgreich abgemeldet");
+      
+      return { success: true };
     } catch (err) {
       console.error("Abmeldefehler:", err);
+      return { success: false };
     }
   }
 

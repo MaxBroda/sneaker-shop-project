@@ -281,7 +281,8 @@
 </template>
 <script setup lang="ts">
 const { token } = useAuth();
-const API_URL = "http://localhost:8080/api";
+const config = useRuntimeConfig();
+const API_URL = config.public.apiUrl;
 
 const isLoading = ref(false);
 const errorMessage = ref("");

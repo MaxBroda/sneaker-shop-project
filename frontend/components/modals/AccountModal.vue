@@ -70,6 +70,7 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 
 const { user, logout } = useAuth();
+const { clearCart, fetchCart } = useCart();
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 
@@ -83,8 +84,10 @@ function closeDropdown() {
 
 async function handleLogout() {
   await logout();
+  clearCart();
+  await fetchCart();
   closeDropdown();
-  navigateTo("/");
+  navigateTo('/');
 }
 
 function getRoleLabel(role?: string): string {
@@ -104,14 +107,3 @@ onBeforeUnmount(() =>
   document.removeEventListener("click", handleClickOutside)
 );
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

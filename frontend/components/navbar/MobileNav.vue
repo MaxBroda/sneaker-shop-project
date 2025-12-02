@@ -5,7 +5,8 @@
         class="flex items-center justify-between py-4 px-6 text-shop-blue-light"
       >
         <NuxtLink to="/" class="text-lg font-bold text-shop-blue-light">SneakerShop</NuxtLink>
-        <div class="flex items-center text-white">
+        <div class="flex items-center gap-3 text-white">
+          <CartModal />
           <button
             @click="toggleMenu"
             class="focus:outline-none flex items-center justify-center"
@@ -74,9 +75,11 @@
 
 <script setup lang="ts">
 import NavbarMobileNavMenuItems from "./NavMenuItems.vue";
+import CartModal from "../modals/CartModal.vue";
 import { ref, onMounted, onUnmounted } from "vue";
 
 const { user, logout } = useAuth();
+const { clearCart, fetchCart } = useCart();
 
 const isOpen = ref(false);
 const mobileNavRef = ref<HTMLElement | null>(null);
@@ -108,8 +111,9 @@ onUnmounted(() => {
 
 async function handleLogout() {
   await logout();
-  console.log("👋 User logged out.");
+  clearCart();
+  await fetchCart();
   closeMenu();
-  navigateTo("/");
+  navigateTo('/');
 }
 </script>

@@ -4,6 +4,13 @@ export default defineNuxtConfig({
 
   css: ["@/assets/custom.css"],
 
+  runtimeConfig: {
+    public: {
+      apiUrl: 'http://localhost:8080/api',
+      uploadsUrl: 'http://localhost:8080/uploads'
+    }
+  },
+
   app: {
     head: {
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],

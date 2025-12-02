@@ -10,28 +10,25 @@
         <NavbarMobileNavMenuItems />
       </div>
       <div class="flex justify-end items-center space-x-4 h-full py-2 pr-2">
-        <NuxtLink
-          v-if="!user"
-          to="/login"
-          class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-10 rounded-full flex items-center justify-center transition-all duration-200"
-        >
-          Login
-        </NuxtLink>
+        <template v-if="!user">
+          <CartModal />
+          <GuestModal />
+          <NuxtLink
+            to="/login"
+            class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-10 rounded-full flex items-center justify-center transition-all duration-200"
+          >
+            Login
+          </NuxtLink>
+        </template>
         <template v-else>
           <NuxtLink
-            v-if="user && user.role === 'seller'"
+            v-if="user.role === 'seller'"
             to="/add-product"
             class="hover:text-shop-blue-light flex items-center justify-center transition-all hover:scale-110"
           >
             <Icon name="mdi:plus-thick" class="w-6 h-6 text-white" />
           </NuxtLink>
-          <NuxtLink
-            v-if="user && user.role === 'customer'"
-            to="/cart"
-            class="hover:text-shop-blue-light flex items-center justify-center transition-all hover:scale-110"
-          >
-            <Icon name="mdi:shopping-cart" class="w-6 h-6 text-white" />
-          </NuxtLink>
+          <CartModal v-if="user.role === 'customer'" />
           <AccountModal />
           <button
             class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-8 rounded-full transition-all duration-200"
@@ -50,12 +47,17 @@
 import NavbarMobileNavMenuItems from "./NavMenuItems.vue";
 import MobileNav from "./MobileNav.vue";
 import AccountModal from "../modals/AccountModal.vue";
+import GuestModal from "../modals/GuestModal.vue";
+import CartModal from "../modals/CartModal.vue";
+import { useCart } from "~/composables/useCart";
 
 const { user, logout } = useAuth();
+const { clearCart, fetchCart } = useCart();
 
 async function handleLogout() {
   await logout();
-  console.log("👋 User logged out.");
-  navigateTo("/");
+  clearCart();
+  await fetchCart();
+  navigateTo('/');
 }
 </script>

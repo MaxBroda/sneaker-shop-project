@@ -12,6 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/cors.php';
+require_once __DIR__ . '/../utils/auth.php';
+require_once __DIR__ . '/../models/Cart.php';
+
+session_start();
 
 $headers = array_change_key_case(getallheaders(), CASE_LOWER);
 $authHeader = $headers['authorization'] ?? '';
@@ -28,11 +32,23 @@ if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
 $token = substr($authHeader, 7);
 
 try {
+    $user = getUserFromToken($token, $pdo);
+    $userId = $user ? $user['id'] : null;
 
     $stmt = $pdo->prepare("DELETE FROM user_tokens WHERE token = ?");
     $stmt->execute([$token]);
 
     if ($stmt->rowCount() > 0) {
+        $oldSessionId = $_SESSION['cart_session_id'] ?? null;
+        
+        if ($oldSessionId) {
+            $deleteStmt = $pdo->prepare("DELETE FROM cart_items WHERE session_id = ? AND user_id IS NULL");
+            $deleteStmt->execute([$oldSessionId]);
+        }
+        
+        session_regenerate_id(true);
+        $_SESSION['cart_session_id'] = bin2hex(random_bytes(16));
+        
         echo json_encode([
             'success' => true,
             'message' => 'Erfolgreich ausgeloggt'

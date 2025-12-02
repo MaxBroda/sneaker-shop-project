@@ -111,7 +111,7 @@
             class="cursor-pointer bg-gradient-to-br from-gray-100 to-gray-200 aspect-[4/3] overflow-hidden relative"
           >
             <img
-              :src="`http://localhost:8080/uploads/${product.image}`"
+              :src="`${config.public.uploadsUrl}/${product.image}`"
               :alt="product.name"
               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
@@ -172,7 +172,8 @@
   </div>
 </template>
 <script setup lang="ts">
-const API_URL = "http://localhost:8080/api";
+const config = useRuntimeConfig();
+const API_URL = config.public.apiUrl;
 
 interface Product {
   id: number;
@@ -197,7 +198,6 @@ const errorMessage = ref("");
 const selectedCategories = ref<string[]>([]);
 const sortBy = ref("default");
 
-// Fetch all products
 async function fetchProducts() {
   isLoading.value = true;
   errorMessage.value = "";

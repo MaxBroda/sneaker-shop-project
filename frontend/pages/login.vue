@@ -52,12 +52,15 @@
 </template>
 
 <script setup lang="ts">
+import { useCart } from "~/composables/useCart";
+
 const email = ref("");
 const password = ref("");
 const error = ref("");
 const emailError = ref("");
 const passwordError = ref("");
 const { login } = useAuth();
+const { mergeCart } = useCart();
 
 function validateEmail() {
   if (!email.value) {
@@ -87,6 +90,7 @@ async function loginUser() {
   
   const res = await login(email.value, password.value);
   if (res.success) {
+    await mergeCart();
     navigateTo("/");
   } else {
     error.value = res.message;

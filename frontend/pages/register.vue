@@ -168,7 +168,10 @@
 </template>
 
 <script setup lang="ts">
+import { useCart } from "~/composables/useCart";
+
 const { register } = useAuth();
+const { mergeCart } = useCart();
 
 const email = ref("");
 const firstName = ref("");
@@ -266,6 +269,7 @@ async function registerUser() {
 
   if (res.success) {
     successMessage.value = res.message || "Registrierung erfolgreich!";
+    await mergeCart();
     setTimeout(() => navigateTo("/"), 1500);
   } else {
     error.value = res.message || "Registrierung fehlgeschlagen.";

@@ -9,9 +9,6 @@ class Product
         $this->pdo = $pdo;
     }
 
-    /**
-     * Create a new product
-     */
     public function create($name, $description, $price, $sellerId, $image = null, $category = null, $technicalSpecs = null, $tagIcon = null, $tagText = null)
     {
         $stmt = $this->pdo->prepare("
@@ -35,9 +32,6 @@ class Product
         ];
     }
 
-    /**
-     * Get all products with seller information
-     */
     public function getAll()
     {
         $stmt = $this->pdo->query("
@@ -54,9 +48,6 @@ class Product
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get products by seller ID
-     */
     public function getBySellerId($sellerId)
     {
         $stmt = $this->pdo->prepare("
@@ -75,9 +66,6 @@ class Product
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get a single product by ID
-     */
     public function getById($id)
     {
         $stmt = $this->pdo->prepare("
@@ -95,9 +83,6 @@ class Product
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Update a product
-     */
     public function update($id, $name, $description, $price, $image = null, $category = null, $technicalSpecs = null, $tagIcon = null, $tagText = null)
     {
         $stmt = $this->pdo->prepare("
@@ -111,9 +96,6 @@ class Product
         return $this->getById($id);
     }
 
-    /**
-     * Delete a product
-     */
     public function delete($id)
     {
         $stmt = $this->pdo->prepare("DELETE FROM products WHERE id = ?");

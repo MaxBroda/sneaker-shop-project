@@ -50,7 +50,7 @@
         >
           <div class="mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden aspect-[5/4]">
             <img
-              :src="`http://localhost:8080/uploads/${product.image}`"
+              :src="`${config.public.uploadsUrl}/${product.image}`"
               :alt="product.name"
               loading="lazy"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -111,7 +111,8 @@ import ConfirmDialog from "~/components/modals/ConfirmDialog.vue";
 import EditProductModal from "~/components/modals/EditProductModal.vue";
 
 const { user, token } = useAuth();
-const API_URL = "http://localhost:8080/api";
+const config = useRuntimeConfig();
+const API_URL = config.public.apiUrl;
 
 const myProducts = ref<any[]>([]);
 const showDeleteConfirm = ref(false);
