@@ -58,14 +58,14 @@ export const useAuth = () => {
         localStorage.setItem("token", res.token);
         localStorage.setItem("user", JSON.stringify(res.user));
         console.log("Anmeldung erfolgreich:", res.user);
-        return true;
+        return { success: true, message: res.message || "Login erfolgreich" };
       }
 
       console.warn("Anmeldung fehlgeschlagen:", res.message);
-      return false;
-    } catch (err) {
+      return { success: false, message: res.message || "Login fehlgeschlagen" };
+    } catch (err: any) {
       console.error("Anmeldefehler:", err);
-      return false;
+      return { success: false, message: err?.data?.message || "Netzwerk- oder Serverfehler" };
     }
   }
 
@@ -74,13 +74,14 @@ export const useAuth = () => {
     firstName: string,
     lastName: string,
     password: string,
+    passwordConfirmation: string,
     role: string,
     address?: Record<string, string>
   ): Promise<ApiResponse> {
     try {
       const res = await $fetch<ApiResponse>(`${API_URL}/register.php`, {
         method: "POST",
-        body: { email, firstName, lastName, password, role, address },
+        body: { email, firstName, lastName, password, passwordConfirmation, role, address },
       });
 
       console.log("Registrierung Antwort:", res);

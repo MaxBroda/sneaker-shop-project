@@ -38,6 +38,12 @@ try {
         }
     }
 
+     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Ungültige E-Mail-Adresse.']);
+        exit;
+    }   
+
     $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $checkStmt->execute([$email]);
     if ($checkStmt->fetch()) {

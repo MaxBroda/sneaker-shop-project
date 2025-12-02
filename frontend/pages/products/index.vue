@@ -111,14 +111,10 @@
             class="cursor-pointer bg-gradient-to-br from-gray-100 to-gray-200 aspect-[4/3] overflow-hidden relative"
           >
             <img
-              v-if="product.image"
               :src="`http://localhost:8080/uploads/${product.image}`"
               :alt="product.name"
               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <span class="text-gray-400 text-6xl">👟</span>
-            </div>
             <div v-if="product.tag_icon && product.tag_text" class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
               <Icon :name="product.tag_icon" class="w-3 h-3" />
               {{ product.tag_text }}

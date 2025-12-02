@@ -7,13 +7,13 @@
       class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
       @click.stop
     >
-      <div class="sticky top-0 bg-white p-6 rounded-t-2xl flex justify-between items-center">
+      <div class="sticky top-0 bg-shop-blue-dark text-white shadow-xl p-6 rounded-t-2xl flex justify-between items-center z-10">
         <h2 class="text-2xl font-bold">Produkt bearbeiten</h2>
         <button
           @click="$emit('close')"
-          class="hover:bg-white/20 rounded-full p-2 transition-colors"
+          class="hover:bg-white/20 rounded-full p-1.5 transition-colors"
         >
-          <Icon name="mdi:close" class="w-6 h-6" />
+          <Icon name="mdi:close" class="w-5 h-5 text-white flex items-center" />
         </button>
       </div>
 
@@ -92,7 +92,7 @@
 
           <div>
             <label class="block text-sm font-semibold mb-2 text-shop-blue-dark">
-              Produktbild
+              Produktbild *
             </label>
             <div
               @dragover.prevent="isDragging = true"
@@ -390,12 +390,20 @@ async function updateProduct() {
 
   if (!form.name || !form.price) {
     errorMessage.value = "Name und Preis sind erforderlich";
+    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  if (!uploadedImageFilename.value) {
+    errorMessage.value = "Bitte laden Sie ein Produktbild hoch";
+    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
   const priceRegex = /^\d+(\.\d{1,2})?$/;
   if (!priceRegex.test(form.price)) {
     errorMessage.value = "Preis muss eine gültige Zahl mit maximal 2 Dezimalstellen sein";
+    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
@@ -403,11 +411,13 @@ async function updateProduct() {
 
   if (priceValue <= 0) {
     errorMessage.value = "Der Preis muss größer als 0 sein";
+    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
   if (priceValue > 999999.99) {
     errorMessage.value = "Der Preis ist zu hoch (Maximum: 999.999,99 €)";
+    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
@@ -445,15 +455,18 @@ async function updateProduct() {
 
     if (response.success) {
       successMessage.value = "Produkt erfolgreich aktualisiert!";
+      document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => {
         emit('updated');
       }, 1000);
     } else {
       errorMessage.value = response.message || "Fehler beim Aktualisieren";
+      document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
     }
   } catch (err: any) {
     console.error("Fehler:", err);
     errorMessage.value = err?.data?.message || "Netzwerk- oder Serverfehler";
+    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
   } finally {
     isLoading.value = false;
   }

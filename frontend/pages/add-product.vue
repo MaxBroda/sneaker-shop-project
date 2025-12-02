@@ -84,7 +84,7 @@
 
         <div>
           <label class="block text-sm font-semibold mb-2 text-shop-blue-dark">
-            Produktbild (quadratisch) *
+            Produktbild *
           </label>
           <div
             @dragover.prevent="isDragging = true"
@@ -467,11 +467,13 @@ async function addProduct() {
 
   if (!form.name || !form.price) {
     errorMessage.value = "Name und Preis sind erforderlich";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
   if (!uploadedImageFilename.value) {
     errorMessage.value = "Bitte laden Sie ein Produktbild hoch";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
@@ -479,6 +481,7 @@ async function addProduct() {
   if (!priceRegex.test(form.price)) {
     errorMessage.value =
       "Preis muss eine gültige Zahl mit maximal 2 Dezimalstellen sein";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
@@ -486,11 +489,13 @@ async function addProduct() {
 
   if (priceValue <= 0) {
     errorMessage.value = "Der Preis muss größer als 0 sein";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
   if (priceValue > 999999.99) {
     errorMessage.value = "Der Preis ist zu hoch (Maximum: 999.999,99 €)";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
@@ -543,6 +548,7 @@ async function addProduct() {
       setTimeout(() => {
         isLoading.value = false;
         successMessage.value = "Produkt erfolgreich hinzugefügt!";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         
         fetchAllProducts();
         
@@ -552,11 +558,13 @@ async function addProduct() {
       }, 1000);
     } else {
       errorMessage.value = response.message || "Fehler beim Hinzufügen";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       isLoading.value = false;
     }
   } catch (err: any) {
     console.error("Fehler:", err);
     errorMessage.value = err?.data?.message || "Netzwerk- oder Serverfehler";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     isLoading.value = false;
   }
 }

@@ -5,7 +5,22 @@
     <div class="bg-white shadow-md p-8 md:rounded-xl w-full md:max-w-lg">
       <h2 class="text-2xl font-bold mb-6 text-center">Registrieren</h2>
 
-      <form @submit.prevent="registerUser" class="flex flex-col gap-4">
+      <div
+        v-if="error"
+        class="bg-red-50 border-l-4 border-signal-red text-signal-red px-4 py-3 rounded mb-6 flex items-start gap-2"
+      >
+        <Icon name="mdi:alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
+        <span>{{ error }}</span>
+      </div>
+      <div
+        v-if="successMessage"
+        class="bg-green-50 border-l-4 border-signal-green text-signal-green px-4 py-3 rounded mb-6 flex items-start gap-2"
+      >
+        <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <form @submit.prevent="registerUser" class="flex flex-col gap-4" novalidate>
         <div
           class="flex border border-gray-200 rounded-lg overflow-hidden w-full"
         >
@@ -35,45 +50,65 @@
           </button>
         </div>
         <div class="flex flex-col md:flex-row gap-4 md:gap-2 w-full">
-          <input
-            v-model="firstName"
-            type="text"
-            placeholder="Vorname"
-            class="border rounded-lg p-2 md:w-1/2"
-            required
-          />
-          <input
-            v-model="lastName"
-            type="text"
-            placeholder="Nachname"
-            class="border rounded-lg p-2 md:w-1/2"
-            required
-          />
+          <div class="md:w-1/2">
+            <input
+              v-model="firstName"
+              type="text"
+              placeholder="Vorname"
+              class="border rounded-lg p-2 w-full"
+              :class="{ 'border-signal-red': validationErrors.firstName }"
+              @blur="validateField('firstName')"
+            />
+            <p v-if="validationErrors.firstName" class="text-signal-red text-sm mt-1">{{ validationErrors.firstName }}</p>
+          </div>
+          <div class="md:w-1/2">
+            <input
+              v-model="lastName"
+              type="text"
+              placeholder="Nachname"
+              class="border rounded-lg p-2 w-full"
+              :class="{ 'border-signal-red': validationErrors.lastName }"
+              @blur="validateField('lastName')"
+            />
+            <p v-if="validationErrors.lastName" class="text-signal-red text-sm mt-1">{{ validationErrors.lastName }}</p>
+          </div>
         </div>
         <hr class="my-2 w-full" />
-        <input
-          v-model="email"
-          type="email"
-          placeholder="E-Mail"
-          class="border rounded-lg p-2 w-full"
-          required
-        />
+        <div>
+          <input
+            v-model="email"
+            type="email"
+            placeholder="E-Mail"
+            class="border rounded-lg p-2 w-full"
+            :class="{ 'border-signal-red': validationErrors.email }"
+            @blur="validateField('email')"
+          />
+          <p v-if="validationErrors.email" class="text-signal-red text-sm mt-1">{{ validationErrors.email }}</p>
+        </div>
 
         <div class="flex flex-col md:flex-row gap-4 md:gap-2 w-full">
-          <input
-            v-model="password"
-            type="password"
-            placeholder="Passwort"
-            class="border rounded-lg p-2 md:w-1/2"
-            required
-          />
-          <input
-            v-model="passwordConfirmation"
-            type="password"
-            placeholder="Passwort wiederholen"
-            class="border rounded-lg p-2 md:w-1/2"
-            required
-          />
+          <div class="md:w-1/2">
+            <input
+              v-model="password"
+              type="password"
+              placeholder="Passwort"
+              class="border rounded-lg p-2 w-full"
+              :class="{ 'border-signal-red': validationErrors.password }"
+              @blur="validateField('password')"
+            />
+            <p v-if="validationErrors.password" class="text-signal-red text-sm mt-1">{{ validationErrors.password }}</p>
+          </div>
+          <div class="md:w-1/2">
+            <input
+              v-model="passwordConfirmation"
+              type="password"
+              placeholder="Passwort wiederholen"
+              class="border rounded-lg p-2 w-full"
+              :class="{ 'border-signal-red': validationErrors.passwordConfirmation }"
+              @blur="validateField('passwordConfirmation')"
+            />
+            <p v-if="validationErrors.passwordConfirmation" class="text-signal-red text-sm mt-1">{{ validationErrors.passwordConfirmation }}</p>
+          </div>
         </div>
         <hr class="my-2 w-full" />
 
@@ -89,8 +124,8 @@
             v-model="address.house_number"
             type="text"
             placeholder="Hausnummer"
-            @input="validateNumberInput"
             class="border rounded-lg p-2 md:w-1/2"
+            @input="filterNumbers($event, 'house_number')"
             required
           />
         </div>
@@ -100,8 +135,8 @@
             type="text"
             placeholder="PLZ"
             maxlength="5"
-            @input="validateNumberInput"
             class="border rounded-lg p-2 md:w-1/2"
+            @input="filterNumbers($event, 'postal_code')"
             required
           />
           <input
@@ -128,18 +163,11 @@
           Registrieren
         </button>
       </form>
-
-      <p v-if="error" class="text-signal-red mt-2 text-center">{{ error }}</p>
-      <p v-if="success" class="text-signal-green mt-2 text-center">
-        Registrierung erfolgreich! Weiterleitung...
-      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-
 const { register } = useAuth();
 
 const email = ref("");
@@ -149,7 +177,7 @@ const password = ref("");
 const passwordConfirmation = ref("");
 const role = ref("customer");
 const error = ref("");
-const success = ref(false);
+const successMessage = ref("");
 
 const address = reactive({
   street: "",
@@ -159,23 +187,70 @@ const address = reactive({
   country: "",
 });
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const validationErrors = reactive({
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  passwordConfirmation: "",
+});
 
-function validateNumberInput(event: Event) {
+function validateField(field: string) {
+  switch (field) {
+    case "firstName":
+      validationErrors.firstName = !firstName.value ? "Bitte gib deinen Vornamen ein." : "";
+      break;
+    case "lastName":
+      validationErrors.lastName = !lastName.value ? "Bitte gib deinen Nachnamen ein." : "";
+      break;
+    case "email":
+      if (!email.value) {
+        validationErrors.email = "Bitte gib deine E-Mail-Adresse ein.";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+        validationErrors.email = "Bitte gib eine gültige E-Mail-Adresse ein.";
+      } else {
+        validationErrors.email = "";
+      }
+      break;
+    case "password":
+      validationErrors.password = !password.value ? "Bitte gib ein Passwort ein." : "";
+      break;
+    case "passwordConfirmation":
+      if (!passwordConfirmation.value) {
+        validationErrors.passwordConfirmation = "Bitte wiederhole dein Passwort.";
+      } else if (passwordConfirmation.value !== password.value) {
+        validationErrors.passwordConfirmation = "Passwörter stimmen nicht überein.";
+      } else {
+        validationErrors.passwordConfirmation = "";
+      }
+      break;
+  }
+}
+
+function validateAllFields() {
+  validateField("firstName");
+  validateField("lastName");
+  validateField("email");
+  validateField("password");
+  validateField("passwordConfirmation");
+  return !Object.values(validationErrors).some(error => error !== "");
+}
+
+function filterNumbers(event: Event, field: 'house_number' | 'postal_code') {
   const input = event.target as HTMLInputElement;
-  input.value = input.value.replace(/\D/g, "");
+  const filtered = input.value.replace(/\D/g, "");
+  if (field === 'postal_code' && filtered.length > 5) {
+    address[field] = filtered.slice(0, 5);
+  } else {
+    address[field] = filtered;
+  }
 }
 
 async function registerUser() {
   error.value = "";
-  success.value = false;
-
-  if (!emailRegex.test(email.value)) {
-    error.value = "Bitte eine gültige E-Mail-Adresse eingeben.";
-    return;
-  }
-  if (password.value !== passwordConfirmation.value) {
-    error.value = "Passwörter stimmen nicht überein.";
+  successMessage.value = "";
+  
+  if (!validateAllFields()) {
     return;
   }
 
@@ -184,13 +259,14 @@ async function registerUser() {
     firstName.value,
     lastName.value,
     password.value,
+    passwordConfirmation.value,
     role.value,
     address
   );
 
   if (res.success) {
-    success.value = true;
-    setTimeout(() => navigateTo("/"), 500);
+    successMessage.value = res.message || "Registrierung erfolgreich!";
+    setTimeout(() => navigateTo("/"), 1500);
   } else {
     error.value = res.message || "Registrierung fehlgeschlagen.";
   }

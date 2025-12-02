@@ -44,6 +44,7 @@
               v-model="addressForm.house_number"
               type="text"
               required
+              @input="filterNumbers($event, 'house_number')"
               class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-dark focus:border-transparent transition-all"
               placeholder="123"
             />
@@ -64,6 +65,8 @@
               v-model="addressForm.postal_code"
               type="text"
               required
+              maxlength="5"
+              @input="filterNumbers($event, 'postal_code')"
               class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-dark focus:border-transparent transition-all"
               placeholder="80331"
             />
@@ -250,6 +253,16 @@ function cancelAddressEdit() {
   addressForm.city = "";
   addressForm.postal_code = "";
   addressForm.country = "Deutschland";
+}
+
+function filterNumbers(event: Event, field: 'house_number' | 'postal_code') {
+  const input = event.target as HTMLInputElement;
+  const filtered = input.value.replace(/\D/g, "");
+  if (field === 'postal_code' && filtered.length > 5) {
+    addressForm[field] = filtered.slice(0, 5);
+  } else {
+    addressForm[field] = filtered;
+  }
 }
 
 async function saveAddress() {

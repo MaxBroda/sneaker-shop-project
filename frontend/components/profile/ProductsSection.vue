@@ -50,15 +50,11 @@
         >
           <div class="mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden aspect-[5/4]">
             <img
-              v-if="product.image"
               :src="`http://localhost:8080/uploads/${product.image}`"
               :alt="product.name"
               loading="lazy"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <Icon name="mdi:image-off" class="w-16 h-16 text-gray-400" />
-            </div>
           </div>
 
           <div class="mb-2 flex-grow">
@@ -94,7 +90,7 @@
             @click="openEditModal(product)"
             class="w-full bg-shop-blue-light hover:bg-shop-blue-dark text-white py-2 px-4 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2"
           >
-            <Icon name="mdi:pencil" class="w-4 h-4" />
+            <Icon name="mdi:pencil" class="w-4 h-4 text-white" />
             Bearbeiten
           </button>
           

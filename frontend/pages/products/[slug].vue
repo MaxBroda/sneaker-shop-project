@@ -33,15 +33,11 @@
             <div class="bg-white rounded-xl md:rounded-2xl shadow-lg md:shadow-xl overflow-hidden p-3 md:p-4">
               <div class="bg-gradient-to-br from-gray-100 to-gray-200 aspect-[5/4] rounded-lg md:rounded-xl overflow-hidden mb-3 md:mb-4">
                 <img
-                  v-if="product.image"
                   :src="`http://localhost:8080/uploads/${product.image}`"
                   :alt="product.name"
                   loading="eager"
                   class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
-                <div v-else class="w-full h-full flex items-center justify-center">
-                  <span class="text-gray-400 text-6xl md:text-9xl">👟</span>
-                </div>
               </div>
               <div class="grid grid-cols-3 gap-2 md:gap-3">
                 <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-md md:rounded-lg p-2 md:p-3 text-center border border-green-200">
