@@ -11,20 +11,8 @@
       <div class="grid md:grid-cols-3 gap-8">
         <div class="md:col-span-2">
           <div class="bg-white p-8 shadow-lg rounded-xl h-full">
-            <div
-              v-if="errorMessage"
-              class="bg-red-50 border-l-4 border-signal-red text-signal-red px-4 py-3 rounded mb-6 flex items-start gap-2"
-            >
-              <Icon name="mdi:alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span>{{ errorMessage }}</span>
-            </div>
-            <div
-              v-if="successMessage"
-              class="bg-green-50 border-l-4 border-signal-green text-signal-green px-4 py-3 rounded mb-6 flex items-start gap-2"
-            >
-              <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span>{{ successMessage }}</span>
-            </div>
+            <AlertMessage type="error" :message="errorMessage" class="mb-6" />
+            <AlertMessage type="success" :message="successMessage" class="mb-6" />
 
             <form @submit.prevent="addProduct" class="space-y-6">
         <div>
@@ -167,7 +155,7 @@
           </label>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs text-gray-600 mb-2">Icon wählen</label>
+              <label class="block text-xs text-gray-500 mb-2">Icon wählen</label>
               <div class="relative">
                 <select
                   v-model="form.tagIcon"
@@ -183,11 +171,11 @@
                   <option value="mdi:heart">❤️ Beliebt</option>
                   <option value="mdi:trending-up">📈 Trend</option>
                 </select>
-                <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 pointer-events-none" />
               </div>
             </div>
             <div>
-              <label class="block text-xs text-gray-600 mb-2">Tag-Text (max. 15 Zeichen)</label>
+              <label class="block text-xs text-gray-500 mb-2">Tag-Text (max. 15 Zeichen)</label>
               <input
                 v-model="form.tagText"
                 type="text"
@@ -198,7 +186,7 @@
             </div>
           </div>
           <div v-if="form.tagIcon && form.tagText" class="mt-3 flex items-center gap-2">
-            <span class="text-sm text-gray-600">Vorschau:</span>
+            <span class="text-sm text-gray-500">Vorschau:</span>
             <div class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
               <Icon :name="form.tagIcon" class="w-3 h-3" />
               {{ form.tagText }}
@@ -267,7 +255,7 @@
 
           <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200">
             <div class="flex items-center gap-3 mb-3">
-              <Icon name="mdi:leaf" class="w-7 h-7 text-green-600" />
+              <Icon name="mdi:leaf" class="w-7 h-7 text-signal-green" />
               <h3 class="font-bold ">Nachhaltigkeit</h3>
             </div>
             <p class="text-sm ">
@@ -280,6 +268,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import AlertMessage from '~/components/ui/AlertMessage.vue';
+
 const { token } = useAuth();
 const config = useRuntimeConfig();
 const API_URL = config.public.apiUrl;
@@ -344,7 +334,7 @@ function getCategoryIcon(category: string): string {
 
 async function fetchAllProducts() {
   try {
-    const response = await $fetch<any>(`${API_URL}/products.php`);
+    const response = await $fetch<any>(`${API_URL}/product.php`);
     if (response.success) {
       allProducts.value = response.data;
     }
@@ -517,7 +507,7 @@ async function addProduct() {
   isLoading.value = true;
 
   try {
-    const response = await $fetch<any>(`${API_URL}/products.php`, {
+    const response = await $fetch<any>(`${API_URL}/product.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

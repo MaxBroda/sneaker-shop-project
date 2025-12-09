@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white p-6 shadow-md rounded-xl">
-    <h2 class="text-xl font-semibold mb-4">Bestellungen</h2>
+    <h2 class="text-xl font-semibold mb-4">Bestellungen verwalten</h2>
     
     <div v-if="isLoading" class="text-center py-8">
       <p class="text-gray-500">Lade Bestellungen...</p>
@@ -10,7 +10,7 @@
 
     <div v-else-if="orders.length === 0" class="text-center py-8">
       <p class="text-lg font-semibold">Noch keine Bestellungen vorhanden.</p>
-      <p class="text-sm mt-2 font-light text-gray-500">Ihre Bestellhistorie wird hier angezeigt.</p>
+      <p class="text-sm mt-2 font-light text-gray-500">Bestellungen für Ihre Produkte werden hier angezeigt.</p>
     </div>
 
     <div v-else class="space-y-6">
@@ -19,17 +19,55 @@
           <div>
             <h3 class="font-semibold text-lg">Bestellung {{ order.order_number }}</h3>
             <p class="text-sm text-gray-500">{{ formatDate(order.created_at) }}</p>
+            <p v-if="order.customer" class="text-sm text-gray-500 mt-1">
+              Kunde: {{ order.customer.first_name }} {{ order.customer.last_name }} ({{ order.customer.email }})
+            </p>
+            <p v-else class="text-sm text-gray-500 mt-1">
+              Gast-Bestellung
+            </p>
           </div>
           <div class="text-right">
-            <span :class="getStatusClass(order.status)" class="px-3 py-1 rounded-full text-sm font-medium">
-              {{ getStatusText(order.status) }}
-            </span>
+            <div class="relative inline-block">
+              <button
+                @click="toggleDropdown(order.id)"
+                :class="getStatusClass(order.status)"
+                class="px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer border-0 flex items-center gap-2"
+              >
+                <span>{{ getStatusText(order.status) }}</span>
+                <Icon 
+                  name="mdi:chevron-down" 
+                  class="w-4 h-4 transition-transform duration-200"
+                  :class="{ 'rotate-180': openDropdown === order.id }"
+                />
+              </button>
+              
+              <div
+                v-if="openDropdown === order.id"
+                class="absolute right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-10 min-w-[180px]"
+              >
+                <button
+                  v-for="status in statusOptions"
+                  :key="status.value"
+                  @click="selectStatus(order.id, status.value)"
+                  :class="[
+                    'w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors',
+                    order.status === status.value ? 'bg-gray-100 font-medium' : ''
+                  ]"
+                  class="first:rounded-t-lg last:rounded-b-lg"
+                >
+                  <div class="flex items-center gap-2">
+                    <div :class="getStatusDotClass(status.value)" class="w-2 h-2 rounded-full"></div>
+                    <span>{{ status.label }}</span>
+                  </div>
+                </button>
+              </div>
+            </div>
             <p class="mt-2 font-semibold text-lg">{{ formatPrice(order.total) }}</p>
           </div>
         </div>
 
         <div class="mb-4">
-          <h4 class="font-medium mb-3">Artikel</h4>
+          <h4 class="font-medium mb-3">Ihre Artikel in dieser Bestellung</h4>
           <div class="space-y-3">
             <div v-for="item in order.items" :key="item.id" class="flex items-center gap-4">
               <img 
@@ -89,79 +127,109 @@
 <script setup lang="ts">
 import AlertMessage from '~/components/ui/AlertMessage.vue';
 
-interface OrderItem {
-  id: number;
-  product_id: number;
-  product_name: string;
-  product_image: string | null;
-  quantity: number;
-  size: string;
-  price: number;
-}
-
-interface Address {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  street: string;
-  house_number: string;
-  city: string;
-  postal_code: string;
-  country: string;
-}
+const config = useRuntimeConfig();
+const { token } = useAuth();
 
 interface Order {
   id: number;
   order_number: string;
   total: number;
   status: string;
+  billing_address: any;
+  shipping_address: any;
   payment_method: string;
   created_at: string;
-  billing_address: Address;
-  shipping_address: Address | null;
-  items: OrderItem[];
+  customer: any;
+  items: any[];
 }
 
-const config = useRuntimeConfig();
-const { token } = useAuth();
-
 const orders = ref<Order[]>([]);
-const isLoading = ref(true);
+const isLoading = ref(false);
 const error = ref('');
+const openDropdown = ref<number | null>(null);
+
+const statusOptions = [
+  { value: 'pending', label: 'Ausstehend' },
+  { value: 'processing', label: 'In Bearbeitung' },
+  { value: 'shipped', label: 'Versandt' },
+  { value: 'delivered', label: 'Zugestellt' },
+  { value: 'cancelled', label: 'Storniert' }
+];
 
 async function fetchOrders() {
   try {
     isLoading.value = true;
     error.value = '';
 
-    const authToken = token.value || localStorage.getItem('token');
-    console.log('[OrdersSection] Token from useAuth:', token.value);
-    console.log('[OrdersSection] Token from localStorage:', localStorage.getItem('token'));
-    console.log('[OrdersSection] Using token:', authToken);
-
-    const response = await $fetch<any>(`${config.public.apiUrl}/orders.php`, {
+    const response = await $fetch<any>(`${config.public.apiUrl}/seller-orders.php`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${token.value}`,
       }
     });
 
     if (response.success) {
       orders.value = response.data;
-      console.log('[OrdersSection] Orders received:', response.data);
-      if (response.data.length > 0) {
-        console.log('[OrdersSection] First order items:', response.data[0].items);
-      }
+      console.log('[SellerOrdersSection] Orders received:', response.data);
     } else {
       throw new Error(response.message || 'Fehler beim Laden der Bestellungen');
     }
   } catch (err: any) {
-    console.error('Error fetching orders:', err);
+    console.error('Error fetching seller orders:', err);
     error.value = err.data?.message || err.message || 'Fehler beim Laden der Bestellungen';
   } finally {
     isLoading.value = false;
   }
 }
+
+async function updateOrderStatus(orderId: number, newStatus: string) {
+  try {
+    const response = await $fetch<any>(`${config.public.apiUrl}/seller-orders.php`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+      body: {
+        order_id: orderId,
+        status: newStatus
+      }
+    });
+
+    if (response.success) {
+      const order = orders.value.find(o => o.id === orderId);
+      if (order) {
+        order.status = newStatus;
+      }
+    } else {
+      throw new Error(response.message || 'Fehler beim Aktualisieren des Status');
+    }
+  } catch (err: any) {
+    console.error('Error updating order status:', err);
+    error.value = err.data?.message || err.message || 'Fehler beim Aktualisieren des Status';
+  }
+}
+
+function toggleDropdown(orderId: number) {
+  openDropdown.value = openDropdown.value === orderId ? null : orderId;
+}
+
+function selectStatus(orderId: number, newStatus: string) {
+  updateOrderStatus(orderId, newStatus);
+  openDropdown.value = null;
+}
+
+onMounted(() => {
+  fetchOrders();
+  
+  if (typeof window !== 'undefined') {
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.relative')) {
+        openDropdown.value = null;
+      }
+    });
+  }
+});
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -178,17 +246,6 @@ function formatPrice(price: number): string {
   return `${price.toFixed(2)} €`;
 }
 
-function getStatusText(status: string): string {
-  const statusMap: Record<string, string> = {
-    'pending': 'Ausstehend',
-    'processing': 'In Bearbeitung',
-    'shipped': 'Versandt',
-    'delivered': 'Zugestellt',
-    'cancelled': 'Storniert'
-  };
-  return statusMap[status] || status;
-}
-
 function getStatusClass(status: string): string {
   const classMap: Record<string, string> = {
     'pending': 'bg-yellow-100 text-yellow-800',
@@ -198,6 +255,28 @@ function getStatusClass(status: string): string {
     'cancelled': 'bg-red-100 text-red-800'
   };
   return classMap[status] || 'bg-gray-100 ';
+}
+
+function getStatusDotClass(status: string): string {
+  const classMap: Record<string, string> = {
+    'pending': 'bg-yellow-500',
+    'processing': 'bg-blue-500',
+    'shipped': 'bg-purple-500',
+    'delivered': 'bg-green-500',
+    'cancelled': 'bg-red-500'
+  };
+  return classMap[status] || 'bg-gray-500';
+}
+
+function getStatusText(status: string): string {
+  const textMap: Record<string, string> = {
+    'pending': 'Ausstehend',
+    'processing': 'In Bearbeitung',
+    'shipped': 'Versandt',
+    'delivered': 'Zugestellt',
+    'cancelled': 'Storniert'
+  };
+  return textMap[status] || status;
 }
 
 function getPaymentMethodText(method: string): string {
@@ -212,5 +291,14 @@ function getPaymentMethodText(method: string): string {
 
 onMounted(() => {
   fetchOrders();
+  
+  if (typeof window !== 'undefined') {
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.relative')) {
+        openDropdown.value = null;
+      }
+    });
+  }
 });
 </script>

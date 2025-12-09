@@ -6,7 +6,9 @@
       >
         <NuxtLink to="/" class="text-lg font-bold text-shop-blue-light">SneakerShop</NuxtLink>
         <div class="flex items-center gap-3 text-white">
-          <CartModal />
+          <ClientOnly>
+            <CartModal v-if="user && user.role === 'customer'" />
+          </ClientOnly>
           <button
             @click="toggleMenu"
             class="focus:outline-none flex items-center justify-center"
@@ -29,45 +31,47 @@
       </div>
       <hr class="my-4 border-shop-blue-light" />
       <div class="mt-4 flex flex-col justify-center items-center">
-        <div
-          class="flex flex-row justify-around items-center w-full gap-2 mb-2"
-        >
+        <ClientOnly>
+          <div
+            class="flex flex-row justify-around items-center w-full gap-2 mb-2"
+          >
+            <NuxtLink
+              v-if="user"
+              to="/profile"
+              @click="closeMenu"
+              class="w-1/2 flex justify-center items-center p-1 bg-shop-bright rounded-full"
+              >Profil</NuxtLink
+            >
+            <NuxtLink
+              v-if="user && user.role === 'customer'"
+              to="/cart"
+              @click="closeMenu"
+              class="w-1/2 flex justify-center items-center p-1 bg-shop-bright rounded-full"
+              >Warenkorb</NuxtLink
+            >
+            <NuxtLink
+              v-if="user && user.role === 'seller'"
+              to="/add-product"
+              @click="closeMenu"
+              class="w-1/2 flex justify-center items-center p-1 bg-shop-bright rounded-full"
+              >Hinzufügen</NuxtLink
+            >
+          </div>
+          <NuxtLink
+            v-if="!user"
+            to="/login"
+            @click="closeMenu"
+            class="w-full flex justify-center items-center p-1 bg-signal-red text-white font-bold rounded-full transition-all duration-200"
+            >Login</NuxtLink
+          >
           <NuxtLink
             v-if="user"
-            to="/profile"
-            @click="closeMenu"
-            class="w-1/2 flex justify-center items-center p-1 bg-shop-bright rounded-full"
-            >Profil</NuxtLink
+            to="/login"
+            class="w-full flex justify-center items-center p-1 bg-signal-red text-white font-bold rounded-full transition-all duration-200"
+            @click="handleLogout"
+            >Logout</NuxtLink
           >
-          <NuxtLink
-            v-if="user && user.role === 'customer'"
-            to="/cart"
-            @click="closeMenu"
-            class="w-1/2 flex justify-center items-center p-1 bg-shop-bright rounded-full"
-            >Warenkorb</NuxtLink
-          >
-          <NuxtLink
-            v-if="user && user.role === 'seller'"
-            to="/add-product"
-            @click="closeMenu"
-            class="w-1/2 flex justify-center items-center p-1 bg-shop-bright rounded-full"
-            >Hinzufügen</NuxtLink
-          >
-        </div>
-        <NuxtLink
-          v-if="!user"
-          to="/login"
-          @click="closeMenu"
-          class="w-full flex justify-center items-center p-1 bg-signal-red text-white font-bold rounded-full transition-all duration-200"
-          >Login</NuxtLink
-        >
-        <NuxtLink
-          v-if="user"
-          to="/login"
-          class="w-full flex justify-center items-center p-1 bg-signal-red text-white font-bold rounded-full transition-all duration-200"
-          @click="handleLogout"
-          >Logout</NuxtLink
-        >
+        </ClientOnly>
       </div>
     </div>
   </div>

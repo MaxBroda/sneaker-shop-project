@@ -10,33 +10,35 @@
         <NavbarMobileNavMenuItems />
       </div>
       <div class="flex justify-end items-center space-x-4 h-full py-2 pr-2">
-        <template v-if="!user">
-          <CartModal />
-          <GuestModal />
-          <NuxtLink
-            to="/login"
-            class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-10 rounded-full flex items-center justify-center transition-all duration-200"
-          >
-            Login
-          </NuxtLink>
-        </template>
-        <template v-else>
-          <NuxtLink
-            v-if="user.role === 'seller'"
-            to="/add-product"
-            class="hover:text-shop-blue-light flex items-center justify-center transition-all hover:scale-110"
-          >
-            <Icon name="mdi:plus-thick" class="w-6 h-6 text-white" />
-          </NuxtLink>
-          <CartModal v-if="user.role === 'customer'" />
-          <AccountModal />
-          <button
-            class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-8 rounded-full transition-all duration-200"
-            @click="handleLogout"
-          >
-            Logout
-          </button>
-        </template>
+        <ClientOnly>
+          <template v-if="!user">
+            <CartModal />
+            <GuestModal />
+            <NuxtLink
+              to="/login"
+              class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-10 rounded-full flex items-center justify-center transition-all duration-200"
+            >
+              Login
+            </NuxtLink>
+          </template>
+          <template v-else>
+            <NuxtLink
+              v-if="user.role === 'seller'"
+              to="/add-product"
+              class="hover:text-shop-blue-light flex items-center justify-center transition-all hover:scale-110"
+            >
+              <Icon name="mdi:plus-thick" class="w-6 h-6 text-white" />
+            </NuxtLink>
+            <CartModal v-if="user.role === 'customer'" />
+            <AccountModal />
+            <button
+              class="bg-signal-red bg-signal-red-hover text-white font-bold h-full px-8 rounded-full transition-all duration-200"
+              @click="handleLogout"
+            >
+              Logout
+            </button>
+          </template>
+        </ClientOnly>
       </div>
     </div>
     <MobileNav class="md:hidden" />

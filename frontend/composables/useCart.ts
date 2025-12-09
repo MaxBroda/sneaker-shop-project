@@ -207,8 +207,24 @@ export const useCart = () => {
     return `${price.toFixed(2)} €`;
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
+    const config = useRuntimeConfig();
+    const { token } = useAuth();
+
     cartItems.value = [];
+
+    if (token.value) {
+      try {
+        await $fetch(`${config.public.apiUrl}/cart.php`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
+          },
+        });
+      } catch (error) {
+        console.error('Error clearing backend cart:', error);
+      }
+    }
   };
 
   return {

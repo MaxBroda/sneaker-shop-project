@@ -11,20 +11,8 @@
       </div>
 
       <div class="col-span-1 md:col-span-3">
-        <div
-          v-if="errorMessage"
-          class="bg-red-50 border-l-4 border-signal-red text-signal-red px-4 py-3 rounded-xl mb-4 flex items-start gap-3"
-        >
-          <Icon name="mdi:alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <span>{{ errorMessage }}</span>
-        </div>
-        <div
-          v-if="successMessage"
-          class="bg-green-50 border-l-4 border-signal-green text-signal-green px-4 py-3 rounded-xl mb-4 flex items-start gap-3"
-        >
-          <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <span>{{ successMessage }}</span>
-        </div>
+        <AlertMessage type="error" :message="errorMessage" class="mb-4" />
+        <AlertMessage type="success" :message="successMessage" class="mb-4" />
 
         <AccountInfo v-if="activeSection === 'account'" />
         <AddressesSection
@@ -38,6 +26,7 @@
           @success="handleSuccess"
           @error="handleError"
         />
+        <SellerOrdersSection v-else-if="activeSection === 'seller-orders'" />
       </div>
     </div>
   </div>
@@ -49,6 +38,8 @@ import AccountInfo from "~/components/profile/AccountInfo.vue";
 import AddressesSection from "~/components/profile/AddressesSection.vue";
 import OrdersSection from "~/components/profile/OrdersSection.vue";
 import ProductsSection from "~/components/profile/ProductsSection.vue";
+import SellerOrdersSection from "~/components/profile/SellerOrdersSection.vue";
+import AlertMessage from '~/components/ui/AlertMessage.vue';
 
 const activeSection = ref("account");
 const errorMessage = ref("");

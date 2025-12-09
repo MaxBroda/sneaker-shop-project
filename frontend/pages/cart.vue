@@ -48,7 +48,7 @@
                   </div>
                   <button
                     @click="showRemoveDialog(item.id)"
-                    class="text-gray-400 hover:text-signal-red transition-all"
+                    class="text-gray-300 hover:text-signal-red transition-all"
                   >
                     <Icon name="mdi:delete-outline" class="w-6 h-6" />
                   </button>
@@ -88,11 +88,11 @@
             <h2 class="font-bold text-xl mb-6">Bestellübersicht</h2>
             
             <div class="space-y-3 mb-6">
-              <div class="flex justify-between text-gray-600">
+              <div class="flex justify-between text-gray-500">
                 <span>Zwischensumme ({{ cartItemCount || 0 }} Artikel)</span>
                 <span>{{ formatPrice(subtotal || 0) }}</span>
               </div>
-              <div class="flex justify-between text-gray-600">
+              <div class="flex justify-between text-gray-500">
                 <span>Versand</span>
                 <span>{{ shippingCost > 0 ? formatPrice(shippingCost) : 'Kostenlos' }}</span>
               </div>
@@ -124,15 +124,15 @@
             </NuxtLink>
 
             <div class="mt-6 pt-6 border-t border-gray-200">
-              <div class="flex items-center gap-3 text-sm text-gray-600 mb-3">
+              <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
                 <Icon name="mdi:truck-delivery-outline" class="w-5 h-5 text-shop-blue-light" />
                 <span>Kostenloser Versand ab 50€</span>
               </div>
-              <div class="flex items-center gap-3 text-sm text-gray-600 mb-3">
+              <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
                 <Icon name="mdi:shield-check-outline" class="w-5 h-5 text-shop-blue-light" />
                 <span>Sichere Bezahlung</span>
               </div>
-              <div class="flex items-center gap-3 text-sm text-gray-600">
+              <div class="flex items-center gap-3 text-sm text-gray-500">
                 <Icon name="mdi:arrow-u-left-top" class="w-5 h-5 text-shop-blue-light" />
                 <span>30 Tage Rückgaberecht</span>
               </div>

@@ -130,7 +130,7 @@ async function fetchMyProducts() {
 
   try {
     const response = await $fetch<any>(
-      `${API_URL}/products.php?seller_id=${user.value.id}`
+      `${API_URL}/product.php?seller_id=${user.value.id}`
     );
     if (response.success) {
       myProducts.value = response.data;
@@ -173,7 +173,7 @@ async function confirmDelete() {
 
   try {
     const response = await $fetch<any>(
-      `${API_URL}/products.php?id=${productToDelete.value}`,
+      `${API_URL}/product.php?id=${productToDelete.value}`,
       {
         method: "DELETE",
         headers: {

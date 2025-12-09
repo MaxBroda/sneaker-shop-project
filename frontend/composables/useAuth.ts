@@ -24,22 +24,29 @@ interface ApiResponse<T = unknown> {
 }
 
 export const useAuth = () => {
-  const user = useState<User | null>("user", () => null);
-  const token = useState<string | null>("token", () => null);
-  const config = useRuntimeConfig();
-  const API_URL = config.public.apiUrl;
-
-  // Initialize from localStorage on client side only
-  onMounted(() => {
+  const user = useState<User | null>("user", () => {
     if (typeof window !== "undefined") {
-      const savedToken = localStorage.getItem("token");
       const savedUser = localStorage.getItem("user");
-      if (savedToken && savedUser) {
-        token.value = savedToken;
-        user.value = JSON.parse(savedUser);
+      if (savedUser) {
+        try {
+          return JSON.parse(savedUser);
+        } catch {
+          return null;
+        }
       }
     }
+    return null;
   });
+  
+  const token = useState<string | null>("token", () => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("token");
+    }
+    return null;
+  });
+  
+  const config = useRuntimeConfig();
+  const API_URL = config.public.apiUrl;
 
   async function login(email: string, password: string) {
     try {

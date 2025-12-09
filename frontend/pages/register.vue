@@ -5,20 +5,8 @@
     <div class="bg-white shadow-md p-8 md:rounded-xl w-full md:max-w-lg">
       <h2 class="text-2xl font-bold mb-6 text-center">Registrieren</h2>
 
-      <div
-        v-if="error"
-        class="bg-red-50 border-l-4 border-signal-red text-signal-red px-4 py-3 rounded mb-6 flex items-start gap-2"
-      >
-        <Icon name="mdi:alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
-        <span>{{ error }}</span>
-      </div>
-      <div
-        v-if="successMessage"
-        class="bg-green-50 border-l-4 border-signal-green text-signal-green px-4 py-3 rounded mb-6 flex items-start gap-2"
-      >
-        <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
-        <span>{{ successMessage }}</span>
-      </div>
+      <AlertMessage type="error" :message="error" class="mb-6" />
+      <AlertMessage type="success" :message="successMessage" class="mb-6" />
 
       <form @submit.prevent="registerUser" class="flex flex-col gap-4" novalidate>
         <div
@@ -169,6 +157,7 @@
 
 <script setup lang="ts">
 import { useCart } from "~/composables/useCart";
+import AlertMessage from '~/components/ui/AlertMessage.vue';
 
 const { register } = useAuth();
 const { mergeCart } = useCart();
@@ -270,7 +259,11 @@ async function registerUser() {
   if (res.success) {
     successMessage.value = res.message || "Registrierung erfolgreich!";
     await mergeCart();
-    setTimeout(() => navigateTo("/"), 1500);
+    
+    const route = useRoute();
+    const redirectPath = route.query.redirect as string || "/";
+    
+    setTimeout(() => navigateTo(redirectPath), 1500);
   } else {
     error.value = res.message || "Registrierung fehlgeschlagen.";
   }

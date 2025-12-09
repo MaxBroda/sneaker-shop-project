@@ -30,28 +30,28 @@
         </h2>
         <div class="space-y-4">
           <div class="flex items-start gap-3">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+            <Icon name="mdi:check-circle" class="w-6 h-6 text-signal-green flex-shrink-0 mt-0.5" />
             <div>
               <p class="font-semibold">Ungetragen & sauber</p>
               <p class="text-sm ">Die Sneaker dürfen nur in Innenräumen anprobiert worden sein</p>
             </div>
           </div>
           <div class="flex items-start gap-3">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+            <Icon name="mdi:check-circle" class="w-6 h-6 text-signal-green flex-shrink-0 mt-0.5" />
             <div>
               <p class="font-semibold">Originalverpackung</p>
               <p class="text-sm ">Bitte sende die Schuhe in der Originalverpackung zurück</p>
             </div>
           </div>
           <div class="flex items-start gap-3">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+            <Icon name="mdi:check-circle" class="w-6 h-6 text-signal-green flex-shrink-0 mt-0.5" />
             <div>
               <p class="font-semibold">Vollständig</p>
               <p class="text-sm ">Alle Artikel und Zubehör müssen enthalten sein</p>
             </div>
           </div>
           <div class="flex items-start gap-3">
-            <Icon name="mdi:check-circle" class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+            <Icon name="mdi:check-circle" class="w-6 h-6 text-signal-green flex-shrink-0 mt-0.5" />
             <div>
               <p class="font-semibold">Mit Etiketten</p>
               <p class="text-sm ">Alle angebrachten Etiketten müssen noch vorhanden sein</p>

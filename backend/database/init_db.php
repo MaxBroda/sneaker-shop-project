@@ -30,6 +30,7 @@ try {
             city TEXT NOT NULL,
             postal_code TEXT NOT NULL,
             country TEXT NOT NULL,
+            is_default INTEGER DEFAULT 0,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     ");
@@ -70,10 +71,15 @@ try {
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
+            user_id INTEGER,
+            order_number TEXT UNIQUE NOT NULL,
             total REAL NOT NULL,
+            status TEXT DEFAULT 'pending',
+            billing_address TEXT NOT NULL,
+            shipping_address TEXT,
+            payment_method TEXT,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
         );
     ");
 
@@ -84,8 +90,9 @@ try {
             order_id INTEGER NOT NULL,
             product_id INTEGER NOT NULL,
             quantity INTEGER NOT NULL,
+            size TEXT NOT NULL,
             price REAL NOT NULL,
-            FOREIGN KEY (order_id) REFERENCES orders(id),
+            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
             FOREIGN KEY (product_id) REFERENCES products(id)
         );
     ");

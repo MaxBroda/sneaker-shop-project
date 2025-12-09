@@ -79,7 +79,7 @@
           Du erhältst automatisch eine Versandbestätigung mit Tracking-Nummer per E-Mail.
         </p>
         <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-          <p class="text-sm font-semibold text-green-800 flex items-center gap-2">
+          <p class="text-sm font-semibold text-signal-green flex items-center gap-2">
             <Icon name="mdi:leaf" class="w-5 h-5" />
             100% klimaneutraler Versand durch CO₂-Kompensation
           </p>
@@ -124,28 +124,28 @@
         </p>
         <div class="grid md:grid-cols-2 gap-4">
           <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-            <Icon name="mdi:check-bold" class="w-6 h-6 text-green-600 flex-shrink-0" />
+            <Icon name="mdi:check-bold" class="w-6 h-6 text-signal-green flex-shrink-0" />
             <div>
               <p class="font-semibold">100% recycelt</p>
               <p class="text-sm ">Aus bereits verwendeten Materialien</p>
             </div>
           </div>
           <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-            <Icon name="mdi:check-bold" class="w-6 h-6 text-green-600 flex-shrink-0" />
+            <Icon name="mdi:check-bold" class="w-6 h-6 text-signal-green flex-shrink-0" />
             <div>
               <p class="font-semibold">100% recycelbar</p>
               <p class="text-sm ">Komplett wiederverwendbar</p>
             </div>
           </div>
           <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-            <Icon name="mdi:check-bold" class="w-6 h-6 text-green-600 flex-shrink-0" />
+            <Icon name="mdi:check-bold" class="w-6 h-6 text-signal-green flex-shrink-0" />
             <div>
               <p class="font-semibold">Plastikfrei</p>
               <p class="text-sm ">Kein Plastik in der gesamten Verpackung</p>
             </div>
           </div>
           <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-            <Icon name="mdi:check-bold" class="w-6 h-6 text-green-600 flex-shrink-0" />
+            <Icon name="mdi:check-bold" class="w-6 h-6 text-signal-green flex-shrink-0" />
             <div>
               <p class="font-semibold">FSC-zertifiziert</p>
               <p class="text-sm ">Aus nachhaltiger Forstwirtschaft</p>

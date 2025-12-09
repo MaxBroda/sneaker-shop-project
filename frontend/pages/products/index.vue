@@ -1,11 +1,17 @@
 <template>
   <div class="bg-gradient-to-b from-shop-bright to-white pb-12">
+    <AddToCartModal
+      :isOpen="showAddToCartModal"
+      :product="selectedProduct"
+      @close="showAddToCartModal = false"
+      @added="handleProductAdded"
+    />
     <div class="container mx-auto px-4 py-6 md:py-12 max-w-7xl">
       <div class="text-center mb-6 md:mb-8">
         <h1 class="text-3xl md:text-4xl font-bold mb-2 text-shop-blue-dark">
           Alle Produkte
         </h1>
-        <p class="text-base text-gray-600">
+        <p class="text-base text-gray-500">
           Entdecke unsere nachhaltige Sneaker-Kollektion
         </p>
       </div>
@@ -32,7 +38,7 @@
               </select>
               <Icon
                 name="mdi:chevron-down"
-                class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 pointer-events-none"
               />
             </div>
           </div>
@@ -58,7 +64,7 @@
           v-if="selectedCategories.length > 0"
           class="pt-4 border-t border-gray-200 flex items-center justify-between"
         >
-          <p class="text-sm font-medium text-gray-600">
+          <p class="text-sm font-medium text-gray-500">
             {{ filteredAndSortedProducts.length }} von {{ allProducts.length }} Produkten angezeigt
           </p>
           <button
@@ -72,24 +78,19 @@
       </div>
       <div v-if="isLoading" class="text-center py-16">
         <Icon name="mdi:loading" class="w-12 h-12 animate-spin mx-auto text-shop-blue-light mb-4" />
-        <p class="text-gray-600">Produkte werden geladen...</p>
+        <p class="text-gray-500">Produkte werden geladen...</p>
       </div>
       <div
         v-else-if="errorMessage"
-        class="bg-red-50 border-l-4 border-signal-red text-signal-red px-6 py-4 rounded-xl flex items-start gap-3"
       >
-        <Icon name="mdi:alert-circle" class="w-6 h-6 flex-shrink-0 mt-0.5" />
-        <div>
-          <h3 class="font-semibold mb-1">Fehler</h3>
-          <p>{{ errorMessage }}</p>
-        </div>
+        <AlertMessage type="error" title="Fehler" :message="errorMessage" />
       </div>
       <div
         v-else-if="filteredAndSortedProducts.length === 0"
         class="text-center py-16 bg-white rounded-2xl shadow-lg"
       >
         <Icon name="mdi:package-variant-closed" class="w-20 h-20 mx-auto mb-4 text-gray-300" />
-        <p class="text-lg text-gray-600">
+        <p class="text-lg text-gray-500">
           {{
             selectedCategories.length > 0
               ? "Keine Produkte in den ausgewählten Kategorien gefunden."
@@ -150,14 +151,14 @@
                 <span class="text-xs text-gray-500">inkl. MwSt.</span>
               </div>
               <button
-                @click.stop="addToCart(product)"
+                @click.stop="openAddToCartModal(product)"
                 class="w-full bg-shop-blue-light hover:bg-shop-blue-dark text-white py-2.5 px-4 rounded-xl font-bold text-sm shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <Icon name="mdi:cart-plus" class="w-5 h-5 text-white" />
                 In den Warenkorb
               </button>
               <div class="mt-3 pt-3 border-t border-gray-200">
-                <p class="text-sm text-gray-600 flex items-center gap-2">
+                <p class="text-sm text-gray-500 flex items-center gap-2">
                   <Icon name="mdi:account-circle" class="w-4 h-4 text-shop-blue-light" />
                   <span class="font-medium">
                     {{ product.seller_first_name }} {{ product.seller_last_name }}
@@ -172,6 +173,9 @@
   </div>
 </template>
 <script setup lang="ts">
+import AddToCartModal from '~/components/modals/AddToCartModal.vue';
+import AlertMessage from '~/components/ui/AlertMessage.vue';
+
 const config = useRuntimeConfig();
 const API_URL = config.public.apiUrl;
 
@@ -197,13 +201,23 @@ const isLoading = ref(true);
 const errorMessage = ref("");
 const selectedCategories = ref<string[]>([]);
 const sortBy = ref("default");
+const showAddToCartModal = ref(false);
+const selectedProduct = ref<Product | null>(null);
+
+function openAddToCartModal(product: Product) {
+  selectedProduct.value = product;
+  showAddToCartModal.value = true;
+}
+
+function handleProductAdded() {
+}
 
 async function fetchProducts() {
   isLoading.value = true;
   errorMessage.value = "";
 
   try {
-    const response = await $fetch<any>(`${API_URL}/products.php`);
+    const response = await $fetch<any>(`${API_URL}/product.php`);
     if (response.success) {
       allProducts.value = response.data;
     } else {
@@ -215,11 +229,6 @@ async function fetchProducts() {
   } finally {
     isLoading.value = false;
   }
-}
-
-function addToCart(product: Product) {
-  console.log("Added to cart:", product);
-  alert(`${product.name} wurde zum Warenkorb hinzugefügt!`);
 }
 
 const filteredAndSortedProducts = computed(() => {

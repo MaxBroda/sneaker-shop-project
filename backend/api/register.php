@@ -62,8 +62,8 @@ try {
     $userId = $pdo->lastInsertId();
 
     $insertAddr = $pdo->prepare("
-        INSERT INTO addresses (user_id, street, house_number, city, postal_code, country)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO addresses (user_id, street, house_number, city, postal_code, country, is_default)
+        VALUES (?, ?, ?, ?, ?, ?, 1)
     ");
     $insertAddr->execute([
         $userId,

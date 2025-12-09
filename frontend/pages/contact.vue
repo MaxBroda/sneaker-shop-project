@@ -49,7 +49,7 @@
                 <option value="application">Bewerbung</option>
                 <option value="other">Sonstiges</option>
               </select>
-              <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 pointer-events-none" />
             </div>
           </div>
           <div>
@@ -70,13 +70,7 @@
             {{ isSubmitting ? 'Wird gesendet...' : 'Nachricht senden' }}
           </button>
         </form>
-        <div
-          v-if="successMessage"
-          class="mt-4 bg-green-50 border-l-4 border-signal-green text-signal-green px-4 py-3 rounded-lg flex items-start gap-3"
-        >
-          <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <span>{{ successMessage }}</span>
-        </div>
+        <AlertMessage type="success" :message="successMessage" class="mt-4" />
       </div>
 
       <div class="space-y-8">
@@ -160,6 +154,8 @@
 </template>
 
 <script setup lang="ts">
+import AlertMessage from '~/components/ui/AlertMessage.vue';
+
 const form = reactive({
   name: '',
   email: '',

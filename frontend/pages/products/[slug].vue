@@ -12,19 +12,13 @@
 
     <div v-if="isLoading" class="container mx-auto px-4 py-12 text-center">
       <Icon name="mdi:loading" class="w-12 h-12 animate-spin mx-auto text-shop-blue-light mb-4" />
-      <p class="text-gray-600">Produkt wird geladen...</p>
+      <p class="text-gray-500">Produkt wird geladen...</p>
     </div>
     <div
       v-else-if="errorMessage"
       class="container mx-auto px-4 py-12 max-w-2xl"
     >
-      <div class="bg-red-50 border-l-4 border-signal-red text-signal-red px-6 py-4 rounded-xl flex items-start gap-3">
-        <Icon name="mdi:alert-circle" class="w-6 h-6 flex-shrink-0 mt-0.5" />
-        <div>
-          <h3 class="font-semibold mb-1">Fehler</h3>
-          <p>{{ errorMessage }}</p>
-        </div>
-      </div>
+      <AlertMessage type="error" title="Fehler" :message="errorMessage" />
     </div>
     <div v-else-if="product" class="bg-gradient-to-b pb-12">
       <div class="container mx-auto px-4 max-w-7xl">
@@ -41,8 +35,8 @@
               </div>
               <div class="grid grid-cols-3 gap-2 md:gap-3">
                 <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-md md:rounded-lg p-2 md:p-3 text-center border border-green-200">
-                  <Icon name="mdi:leaf" class="w-5 h-5 md:w-6 md:h-6 mx-auto mb-1 text-green-600" />
-                  <p class="text-xs font-medium text-green-800">Nachhaltig</p>
+                  <Icon name="mdi:leaf" class="w-5 h-5 md:w-6 md:h-6 mx-auto mb-1 text-signal-green" />
+                  <p class="text-xs font-medium text-signal-green">Nachhaltig</p>
                 </div>
                 <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-md md:rounded-lg p-2 md:p-3 text-center border border-blue-200">
                   <Icon name="mdi:truck-fast" class="w-5 h-5 md:w-6 md:h-6 mx-auto mb-1 text-shop-blue-light" />
@@ -186,21 +180,21 @@
               </p>
             </div>
             <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl md:rounded-2xl shadow-lg p-6 md:p-8 border-2 border-green-200">
-              <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-green-800 flex items-center gap-2">
+              <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-signal-green flex items-center gap-2">
                 <Icon name="mdi:leaf" class="w-7 h-7" />
                 Nachhaltig & Umweltfreundlich
               </h2>
-              <ul class="space-y-3 text-green-900">
+              <ul class="space-y-3 text-signal-green">
                 <li class="flex items-start gap-3">
-                  <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5 text-green-600" />
+                  <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5 text-signal-green" />
                   <span>Hergestellt aus recycelten und nachhaltigen Materialien</span>
                 </li>
                 <li class="flex items-start gap-3">
-                  <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5 text-green-600" />
+                  <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5 text-signal-green" />
                   <span>Klimaneutrale Produktion und Lieferung</span>
                 </li>
                 <li class="flex items-start gap-3">
-                  <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5 text-green-600" />
+                  <Icon name="mdi:check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5 text-signal-green" />
                   <span>Fair Trade zertifiziert</span>
                 </li>
               </ul>
@@ -243,21 +237,21 @@
                     <Icon name="mdi:truck-delivery" class="w-5 h-5 text-shop-blue-light" />
                     Versand
                   </h3>
-                  <p class="text-gray-700 text-sm pl-7">Kostenloser Versand ab 50€ • Lieferzeit 2-4 Werktage • Klimaneutraler Versand mit DHL GoGreen</p>
+                  <p class=" text-sm pl-7">Kostenloser Versand ab 50€ • Lieferzeit 2-4 Werktage • Klimaneutraler Versand mit DHL GoGreen</p>
                 </div>
                 <div>
                   <h3 class="font-semibold mb-2 flex items-center gap-2">
                     <Icon name="mdi:keyboard-return" class="w-5 h-5 text-shop-blue-light" />
                     Rückgabe
                   </h3>
-                  <p class="text-gray-700 text-sm pl-7">30 Tage Rückgaberecht • Kostenloser Rückversand • Schnelle Rückerstattung</p>
+                  <p class=" text-sm pl-7">30 Tage Rückgaberecht • Kostenloser Rückversand • Schnelle Rückerstattung</p>
                 </div>
                 <div>
                   <h3 class="font-semibold mb-2 flex items-center gap-2">
                     <Icon name="mdi:credit-card" class="w-5 h-5 text-shop-blue-light" />
                     Zahlung
                   </h3>
-                  <p class="text-gray-700 text-sm pl-7">PayPal • Kreditkarte • Klarna • SEPA-Lastschrift</p>
+                  <p class=" text-sm pl-7">PayPal • Kreditkarte • Klarna • SEPA-Lastschrift</p>
                 </div>
               </div>
             </div>
@@ -269,6 +263,7 @@
 </template>
 <script setup lang="ts">
 import { useCart } from "~/composables/useCart";
+import AlertMessage from '~/components/ui/AlertMessage.vue';
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -306,7 +301,7 @@ async function fetchProduct() {
   errorMessage.value = "";
 
   try {
-    const response = await $fetch<any>(`${API_URL}/products.php`);
+    const response = await $fetch<any>(`${API_URL}/product.php`);
     if (response.success) {
       const foundProduct = response.data.find(
         (p: Product) => p.id === productId

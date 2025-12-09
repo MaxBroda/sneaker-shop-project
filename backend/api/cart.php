@@ -107,8 +107,19 @@ try {
             $data = json_decode(file_get_contents('php://input'), true);
             
             if (!isset($data['cart_item_id'])) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Warenkorb-Item-ID erforderlich']);
+                $result = $cart->clearCart($userId, $sessionId);
+                
+                if ($result['success']) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Warenkorb geleert',
+                        'items' => [],
+                        'count' => 0
+                    ]);
+                } else {
+                    http_response_code(400);
+                    echo json_encode($result);
+                }
                 break;
             }
 

@@ -7,14 +7,17 @@
       @cancel="cancelDelete"
     />
   <div class="bg-white p-6 shadow-md rounded-xl">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold">Adressen</h2>
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h2 class="text-2xl font-bold mb-1">Adressverwaltung</h2>
+        <p class="text-gray-500">Verwalten Sie Ihre Liefer- und Rechnungsadressen</p>
+      </div>
       <button
         v-if="!showAddressForm"
         @click="addNewAddress"
-        class="bg-shop-blue-light text-white px-4 py-2 rounded-lg hover:bg-shop-blue-dark transition-all"
+        class="px-5 py-2.5 bg-shop-blue-light hover:bg-shop-blue-dark text-white font-medium rounded-lg transition-colors shadow-sm"
       >
-        + Adresse hinzufügen
+        + Neue Adresse
       </button>
     </div>
     <div
@@ -101,58 +104,162 @@
       </form>
     </div>
 
-    <div
-      v-if="addresses.length === 0 && !showAddressForm"
-      class="text-center py-8 text-gray-500"
-    >
-      <p>Keine Adressen gespeichert.</p>
-    </div>
+    <p v-if="addresses.length === 0 && !showAddressForm" class="text-center py-12 text-gray-500">
+      Noch keine Adressen gespeichert. Fügen Sie Ihre erste Adresse hinzu.
+    </p>
 
-    <div v-else-if="!showAddressForm" class="space-y-3">
-      <div
-        v-for="(address, index) in addresses"
-        :key="index"
-        class="border border-gray-200 rounded-lg p-4 transition-all"
-        :class="{ 'border-shop-blue-light border-2': index === defaultAddressIndex }"
-      >
-        <div class="flex justify-between items-start">
-          <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1">
-              <p class="font-medium">
-                {{ address.street }} {{ address.house_number }}
+    <div v-else-if="!showAddressForm" class="space-y-4">
+      <div v-if="defaultAddress" class="space-y-3">
+        <div class="flex items-center gap-2 mb-2">
+          <Icon name="mdi:check-circle" class="w-5 h-5 text-shop-blue-light" />
+          <h3 class="font-semibold text-lg">Standard Lieferadresse</h3>
+        </div>
+        
+        <div class="bg-gradient-to-br from-shop-blue-light/5 to-shop-blue-dark/5 border-2 border-shop-blue-light rounded-xl p-5 shadow-sm">
+          <div v-if="!editingDefaultAddress" class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-shop-blue-light text-white">
+                  Standard
+                </span>
+              </div>
+              <p class="font-medium text-lg mb-1">
+                {{ defaultAddress.street }} {{ defaultAddress.house_number }}
               </p>
-              <span
-                v-if="index === defaultAddressIndex"
-                class="text-xs bg-shop-blue-light text-white px-2 py-1 rounded-lg"
-              >
-                Standard
-              </span>
+              <p class="">
+                {{ defaultAddress.postal_code }} {{ defaultAddress.city }}
+              </p>
+              <p class="text-gray-500">{{ defaultAddress.country }}</p>
             </div>
-            <p class="">
-              {{ address.postal_code }} {{ address.city }}
-            </p>
-            <p class="">{{ address.country }}</p>
+            <div class="flex gap-2">
+              <button
+                @click="editDefaultAddress"
+                class="px-4 py-2 text-sm text-shop-blue-light hover:bg-shop-blue-light/10 font-medium rounded-lg transition-colors"
+              >
+                Bearbeiten
+              </button>
+            </div>
           </div>
-          <div class="flex flex-col gap-2 items-end">
-            <button
-              v-if="index !== defaultAddressIndex"
-              @click="setDefaultAddress(index)"
-              class="text-sm text-shop-blue-light hover:text-shop-blue-dark transition-colors"
-            >
-              Als Standard setzen
-            </button>
-            <button
-              @click="editAddress(index)"
-              class="text-sm text-shop-blue-light hover:text-shop-blue-dark transition-colors"
-            >
-              Bearbeiten
-            </button>
-            <button
-              @click="deleteAddress(index)"
-              class="text-sm text-signal-red hover:opacity-80 transition-opacity"
-            >
-              Löschen
-            </button>
+
+          <div v-else class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium  mb-1">Straße</label>
+                <input
+                  v-model="addressForm.street"
+                  type="text"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shop-blue-light focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium  mb-1">Hausnummer</label>
+                <input
+                  v-model="addressForm.house_number"
+                  type="text"
+                  required
+                  @input="(e) => filterNumbers(e, 'house_number')"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shop-blue-light focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium  mb-1">Postleitzahl</label>
+                <input
+                  v-model="addressForm.postal_code"
+                  type="text"
+                  required
+                  maxlength="5"
+                  @input="(e) => filterNumbers(e, 'postal_code')"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shop-blue-light focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium  mb-1">Stadt</label>
+                <input
+                  v-model="addressForm.city"
+                  type="text"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shop-blue-light focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium  mb-1">Land</label>
+              <input
+                v-model="addressForm.country"
+                type="text"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shop-blue-light focus:border-transparent"
+              />
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button
+                @click="saveAddress"
+                :disabled="isSaving"
+                class="px-6 py-2.5 bg-shop-blue-light hover:bg-shop-blue-dark text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-sm"
+              >
+                {{ isSaving ? "Speichern..." : "Speichern" }}
+              </button>
+              <button
+                @click="cancelAddressEdit"
+                type="button"
+                class="px-6 py-2.5 border border-gray-300 hover:bg-gray-50  font-medium rounded-lg transition-colors"
+              >
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="otherAddresses.length > 0" class="space-y-3">
+        <div class="flex items-center gap-2 mt-6 mb-2">
+          <Icon name="mdi:map-marker" class="w-5 h-5 text-gray-500" />
+          <h3 class="font-semibold text-lg">Weitere Adressen</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            v-for="address in otherAddresses"
+            :key="address.id"
+            class="border border-gray-200 hover:border-shop-blue-light/50 rounded-xl p-4 transition-all bg-white shadow-sm hover:shadow-md"
+          >
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex-1">
+                <p class="font-medium text-base mb-1">
+                  {{ address.street }} {{ address.house_number }}
+                </p>
+                <p class=" text-sm">
+                  {{ address.postal_code }} {{ address.city }}
+                </p>
+                <p class="text-gray-500 text-sm">{{ address.country }}</p>
+              </div>
+            </div>
+            <div class="flex gap-2 pt-2 border-t border-gray-100">
+              <button
+                @click="setDefaultAddress(address.id!)"
+                class="flex-1 px-3 py-1.5 text-sm text-shop-blue-light hover:bg-shop-blue-light/10 font-medium rounded-lg transition-colors"
+              >
+                Als Standard setzen
+              </button>
+              <button
+                @click="editAddress(address.id!)"
+                class="px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 font-medium rounded-lg transition-colors"
+              >
+                Bearbeiten
+              </button>
+              <button
+                @click="deleteAddress(address.id!)"
+                class="px-3 py-1.5 text-sm text-signal-red hover:bg-red-50 font-medium rounded-lg transition-colors"
+              >
+                Löschen
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -163,14 +270,18 @@
 <script setup lang="ts">
 import ConfirmDialog from "~/components/modals/ConfirmDialog.vue";
 
-const { user } = useAuth();
+const { user, token } = useAuth();
+const config = useRuntimeConfig();
+const API_URL = config.public.apiUrl;
 
 interface Address {
+  id?: number;
   street: string;
   house_number: string;
   city: string;
   postal_code: string;
   country: string;
+  is_default?: number;
 }
 
 const emit = defineEmits<{
@@ -179,9 +290,9 @@ const emit = defineEmits<{
 }>();
 
 const addresses = ref<Address[]>([]);
-const defaultAddressIndex = ref(0);
 const showAddressForm = ref(false);
 const editingAddressId = ref<number | null>(null);
+const editingDefaultAddress = ref(false);
 const isSaving = ref(false);
 const showDeleteConfirm = ref(false);
 const addressToDelete = ref<number | null>(null);
@@ -194,25 +305,29 @@ const addressForm = reactive({
   country: "Deutschland",
 });
 
-onMounted(() => {
-  if (typeof window !== "undefined" && user.value) {
-    const userAddressKey = `user_addresses_${user.value.id}`;
-    const userDefaultIndexKey = `default_address_index_${user.value.id}`;
-    
-    const savedAddresses = localStorage.getItem(userAddressKey);
-    if (savedAddresses) {
-      addresses.value = JSON.parse(savedAddresses);
-    } else if (user.value?.address) {
-      addresses.value = [user.value.address];
-      localStorage.setItem(userAddressKey, JSON.stringify(addresses.value));
-    }
+const defaultAddress = computed(() => addresses.value.find(a => a.is_default));
+const otherAddresses = computed(() => addresses.value.filter(a => !a.is_default));
 
-    const savedDefaultIndex = localStorage.getItem(userDefaultIndexKey);
-    if (savedDefaultIndex) {
-      defaultAddressIndex.value = parseInt(savedDefaultIndex);
-    }
-  }
+onMounted(() => {
+  loadAddresses();
 });
+
+async function loadAddresses() {
+  try {
+    const response = await $fetch<any>(`${API_URL}/addresses.php`, {
+      headers: {
+        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
+      },
+    });
+
+    if (response.success) {
+      addresses.value = response.data;
+    }
+  } catch (err) {
+    console.error('Failed to load addresses:', err);
+    emit("error", "Fehler beim Laden der Adressen");
+  }
+}
 
 function addNewAddress() {
   editingAddressId.value = null;
@@ -224,10 +339,23 @@ function addNewAddress() {
   showAddressForm.value = true;
 }
 
-function editAddress(index: number) {
-  editingAddressId.value = index;
-  const address = addresses.value[index];
+function editDefaultAddress() {
+  const address = defaultAddress.value;
   if (address) {
+    editingAddressId.value = address.id!;
+    addressForm.street = address.street;
+    addressForm.house_number = address.house_number;
+    addressForm.city = address.city;
+    addressForm.postal_code = address.postal_code;
+    addressForm.country = address.country;
+    editingDefaultAddress.value = true;
+  }
+}
+
+function editAddress(id: number) {
+  const address = addresses.value.find(a => a.id === id);
+  if (address) {
+    editingAddressId.value = id;
     addressForm.street = address.street;
     addressForm.house_number = address.house_number;
     addressForm.city = address.city;
@@ -237,17 +365,33 @@ function editAddress(index: number) {
   }
 }
 
-function setDefaultAddress(index: number) {
-  defaultAddressIndex.value = index;
-  if (typeof window !== "undefined" && user.value) {
-    const userDefaultIndexKey = `default_address_index_${user.value.id}`;
-    localStorage.setItem(userDefaultIndexKey, index.toString());
+async function setDefaultAddress(id: number) {
+  try {
+    const response = await $fetch<any>(`${API_URL}/addresses.php`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
+      },
+      body: {
+        id,
+        is_default: 1
+      }
+    });
+
+    if (response.success) {
+      await loadAddresses();
+      emit("success", "Standardadresse erfolgreich geändert!");
+    }
+  } catch (err) {
+    console.error('Failed to set default:', err);
+    emit("error", "Fehler beim Setzen der Standardadresse");
   }
-  emit("success", "Standardadresse erfolgreich geändert!");
 }
 
 function cancelAddressEdit() {
   showAddressForm.value = false;
+  editingDefaultAddress.value = false;
+  editingAddressId.value = null;
   addressForm.street = "";
   addressForm.house_number = "";
   addressForm.city = "";
@@ -269,37 +413,50 @@ async function saveAddress() {
   isSaving.value = true;
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
     if (editingAddressId.value !== null) {
-      addresses.value[editingAddressId.value] = { ...addressForm };
-      emit("success", "Adresse erfolgreich aktualisiert!");
+      const response = await $fetch<any>(`${API_URL}/addresses.php`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
+        },
+        body: {
+          id: editingAddressId.value,
+          ...addressForm
+        }
+      });
+
+      if (response.success) {
+        emit("success", "Adresse erfolgreich aktualisiert!");
+      }
     } else {
-      addresses.value.push({ ...addressForm });
-      emit("success", "Adresse erfolgreich hinzugefügt!");
-    }
+      const response = await $fetch<any>(`${API_URL}/addresses.php`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
+        },
+        body: {
+          ...addressForm,
+          is_default: addresses.value.length === 0 ? 1 : 0
+        }
+      });
 
-    if (typeof window !== "undefined" && user.value) {
-      const userAddressKey = `user_addresses_${user.value.id}`;
-      localStorage.setItem(userAddressKey, JSON.stringify(addresses.value));
-
-      if (addresses.value.length > 0) {
-        user.value.address = addresses.value[defaultAddressIndex.value];
-        localStorage.setItem("user", JSON.stringify(user.value));
+      if (response.success) {
+        emit("success", "Adresse erfolgreich hinzugefügt!");
       }
     }
 
+    await loadAddresses();
     cancelAddressEdit();
   } catch (err: any) {
     console.error("Fehler:", err);
-    emit("error", "Fehler beim Speichern der Adresse");
+    emit("error", err?.data?.message || "Fehler beim Speichern der Adresse");
   } finally {
     isSaving.value = false;
   }
 }
 
-async function deleteAddress(index: number) {
-  addressToDelete.value = index;
+async function deleteAddress(id: number) {
+  addressToDelete.value = id;
   showDeleteConfirm.value = true;
 }
 
@@ -311,34 +468,24 @@ function cancelDelete() {
 async function confirmDelete() {
   if (addressToDelete.value === null) return;
 
-  const index = addressToDelete.value;
+  const id = addressToDelete.value;
   showDeleteConfirm.value = false;
 
   try {
-    addresses.value.splice(index, 1);
+    const response = await $fetch<any>(`${API_URL}/addresses.php?id=${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
+      },
+    });
 
-    if (defaultAddressIndex.value >= addresses.value.length) {
-      defaultAddressIndex.value = Math.max(0, addresses.value.length - 1);
+    if (response.success) {
+      await loadAddresses();
+      emit("success", "Adresse erfolgreich gelöscht!");
     }
-
-    if (typeof window !== "undefined" && user.value) {
-      const userAddressKey = `user_addresses_${user.value.id}`;
-      const userDefaultIndexKey = `default_address_index_${user.value.id}`;
-      
-      localStorage.setItem(userAddressKey, JSON.stringify(addresses.value));
-      localStorage.setItem(userDefaultIndexKey, defaultAddressIndex.value.toString());
-
-      user.value.address =
-        addresses.value.length > 0
-          ? addresses.value[defaultAddressIndex.value]
-          : undefined;
-      localStorage.setItem("user", JSON.stringify(user.value));
-    }
-
-    emit("success", "Adresse erfolgreich gelöscht!");
   } catch (err: any) {
     console.error("Fehler:", err);
-    emit("error", "Fehler beim Löschen der Adresse");
+    emit("error", err?.data?.message || "Fehler beim Löschen der Adresse");
   } finally {
     addressToDelete.value = null;
   }

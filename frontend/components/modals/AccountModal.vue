@@ -9,7 +9,7 @@
     <transition name="fade">
       <div
         v-if="isOpen"
-        class="absolute -right-5 mt-3 w-52 bg-white text-shop-dark rounded-xl shadow-xl z-50 overflow-hidden"
+        class="absolute -right-5 mt-3 w-60 bg-white text-shop-dark rounded-xl shadow-xl z-50 overflow-hidden"
       >
         <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
           <h1 class="font-semibold">
@@ -58,6 +58,16 @@
             >
               <Icon name="mdi:store-outline" class="w-5 h-5 text-shop-blue-light" />
               <span>Produkte verwalten</span>
+            </NuxtLink>
+          </li>
+          <li v-if="user?.role === 'seller'">
+            <NuxtLink
+              to="/profile?section=seller-orders"
+              class="flex items-center gap-1 px-4 py-2 hover:bg-gray-50 transition-all"
+              @click="closeDropdown"
+            >
+              <Icon name="mdi:clipboard-list-outline" class="w-5 h-5 text-shop-blue-light" />
+              <span>Bestellungen verwalten</span>
             </NuxtLink>
           </li>
         </ul>

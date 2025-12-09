@@ -60,7 +60,7 @@
 
         <div v-if="cartItems.length === 0" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <Icon name="mdi:cart-outline" class="w-24 h-24 mb-4 text-gray-300" />
-          <h3 class="text-xl font-semibold text-gray-700 mb-2">Dein Warenkorb ist leer</h3>
+          <h3 class="text-xl font-semibold  mb-2">Dein Warenkorb ist leer</h3>
           <p class="text-gray-500 mb-6">Füge Produkte hinzu, um mit dem Einkaufen zu beginnen.</p>
           <NuxtLink
             to="/products"
@@ -91,7 +91,7 @@
                   </div>
                   <button
                     @click="showRemoveDialog(item.id)"
-                    class="text-gray-400 hover:text-signal-red transition-all flex-shrink-0"
+                    class="text-gray-300 hover:text-signal-red transition-all flex-shrink-0"
                   >
                     <Icon name="mdi:close-circle" class="w-6 h-6" />
                   </button>
@@ -125,11 +125,11 @@
 
         <div v-if="cartItems.length > 0" class="border-t border-gray-200 bg-gray-50 p-6">
           <div class="mb-4">
-            <div class="flex justify-between text-gray-600 mb-2">
+            <div class="flex justify-between text-gray-500 mb-2">
               <span>Zwischensumme</span>
               <span>{{ formatPrice(subtotal || 0) }}</span>
             </div>
-            <div class="flex justify-between text-gray-600 mb-2">
+            <div class="flex justify-between text-gray-500 mb-2">
               <span>Versand</span>
               <span>{{ shippingCost > 0 ? formatPrice(shippingCost) : 'Kostenlos' }}</span>
             </div>

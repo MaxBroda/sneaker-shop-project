@@ -56,6 +56,8 @@ function authenticate()
 
 function getUserFromToken($token, $pdo) {
     try {
+        error_log("[AUTH] getUserFromToken called with token: " . substr($token, 0, 20) . "...");
+        
         $stmt = $pdo->prepare("
             SELECT users.id, users.email, users.first_name, users.last_name, users.role
             FROM users
@@ -63,8 +65,22 @@ function getUserFromToken($token, $pdo) {
             WHERE user_tokens.token = ?
         ");
         $stmt->execute([$token]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user) {
+            error_log("[AUTH] User found: " . $user['email']);
+        } else {
+            error_log("[AUTH] No user found for token");
+            
+            $checkStmt = $pdo->prepare("SELECT COUNT(*) as count FROM user_tokens WHERE token = ?");
+            $checkStmt->execute([$token]);
+            $tokenExists = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            error_log("[AUTH] Token exists in user_tokens: " . ($tokenExists['count'] > 0 ? 'yes' : 'no'));
+        }
+        
+        return $user;
     } catch (Exception $e) {
+        error_log("[AUTH] Exception in getUserFromToken: " . $e->getMessage());
         return null;
     }
 }
