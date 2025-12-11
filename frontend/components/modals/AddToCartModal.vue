@@ -21,13 +21,13 @@
           class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
           @click.stop
         >
-          <div class="sticky top-0 bg-shop-blue-dark text-white px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+          <div class="sticky top-0 bg-shop-blue-dark text-white px-6 py-4 flex items-center justify-between rounded-t-2xl z-10 shadow-xl">
             <h2 class="text-xl font-bold">Zum Warenkorb hinzufügen</h2>
             <button
               @click="closeModal"
               class="hover:bg-white/20 rounded-full p-2 transition-all"
             >
-              <Icon name="mdi:close" class="w-6 h-6" />
+              <Icon name="mdi:close" class="w-5 h-5 flex justify-center items-center text-white" />
             </button>
           </div>
 

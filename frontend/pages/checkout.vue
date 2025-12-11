@@ -78,5 +78,6 @@ function handleGuestCheckout() {
 function handleOrderComplete(orderNum: string) {
   orderNumber.value = orderNum;
   checkoutStep.value = 'success';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
