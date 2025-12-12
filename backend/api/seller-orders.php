@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/../utils/cors.php';
+
+header('Content-Type: application/json');
+
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/auth.php';
 require_once __DIR__ . '/../models/Order.php';
@@ -36,7 +38,7 @@ if ($method === 'GET') {
         error_log("[SELLER-ORDERS] Fetching orders for seller ID: " . $user['id']);
         $orders = $orderModel->getSellerOrders($user['id']);
         error_log("[SELLER-ORDERS] Orders fetched: " . count($orders));
-        
+
         echo json_encode([
             'success' => true,
             'data' => $orders
@@ -55,7 +57,7 @@ if ($method === 'GET') {
 
 if ($method === 'PUT') {
     $data = json_decode(file_get_contents('php://input'), true);
-    
+
     if (!isset($data['order_id']) || !isset($data['status'])) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Fehlende Daten']);
@@ -71,7 +73,7 @@ if ($method === 'PUT') {
 
     try {
         $orderModel->updateStatus($data['order_id'], $data['status'], $user['id']);
-        
+
         echo json_encode([
             'success' => true,
             'message' => 'Status aktualisiert'

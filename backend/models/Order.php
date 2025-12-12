@@ -1,13 +1,16 @@
 <?php
 
-class Order {
+class Order
+{
     private $pdo;
 
-    public function __construct($pdo) {
+    public function __construct($pdo)
+    {
         $this->pdo = $pdo;
     }
 
-    public function getUserOrders($userId) {
+    public function getUserOrders($userId)
+    {
         try {
             $stmt = $this->pdo->prepare("
                 SELECT 
@@ -15,6 +18,7 @@ class Order {
                     o.order_number,
                     o.total,
                     o.status,
+                    o.payment_status,
                     o.billing_address,
                     o.shipping_address,
                     o.payment_method,
@@ -28,7 +32,7 @@ class Order {
 
             foreach ($orders as &$order) {
                 $order['items'] = $this->getOrderItems($order['id']);
-                
+
                 $order['billing_address'] = json_decode($order['billing_address'], true);
                 $order['shipping_address'] = $order['shipping_address'] ? json_decode($order['shipping_address'], true) : null;
             }
@@ -39,7 +43,8 @@ class Order {
         }
     }
 
-    public function getOrderItems($orderId) {
+    public function getOrderItems($orderId)
+    {
         try {
             $stmt = $this->pdo->prepare("
                 SELECT 
@@ -56,7 +61,7 @@ class Order {
             ");
             $stmt->execute([$orderId]);
             $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             foreach ($items as &$item) {
                 if ($item['product_image']) {
                     $imagePath = $item['product_image'];
@@ -66,14 +71,15 @@ class Order {
                     $item['product_image'] = 'http://localhost:8080/' . $imagePath;
                 }
             }
-            
+
             return $items;
         } catch (Exception $e) {
             return [];
         }
     }
 
-    public function create($userId, $items, $total, $billingAddress, $shippingAddress, $paymentMethod) {
+    public function create($userId, $items, $total, $billingAddress, $shippingAddress, $paymentMethod)
+    {
         try {
             $this->pdo->beginTransaction();
 
@@ -88,18 +94,20 @@ class Order {
                     order_number,
                     total,
                     status,
+                    payment_status,
                     billing_address,
                     shipping_address,
                     payment_method,
                     created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
             ");
-            
+
             $stmt->execute([
                 $userId,
                 $orderNumber,
                 $total,
                 'pending',
+                'open',
                 $billingAddressJson,
                 $shippingAddressJson,
                 $paymentMethod
@@ -140,7 +148,8 @@ class Order {
         }
     }
 
-    public function getSellerOrders($sellerId) {
+    public function getSellerOrders($sellerId)
+    {
         try {
             $stmt = $this->pdo->prepare("
                 SELECT DISTINCT
@@ -148,6 +157,7 @@ class Order {
                     o.order_number,
                     o.total,
                     o.status,
+                    o.payment_status,
                     o.billing_address,
                     o.shipping_address,
                     o.payment_method,
@@ -164,10 +174,10 @@ class Order {
 
             foreach ($orders as &$order) {
                 $order['items'] = $this->getSellerOrderItems($order['id'], $sellerId);
-                
+
                 $order['billing_address'] = json_decode($order['billing_address'], true);
                 $order['shipping_address'] = $order['shipping_address'] ? json_decode($order['shipping_address'], true) : null;
-                
+
                 if ($order['user_id']) {
                     $userStmt = $this->pdo->prepare("SELECT email, first_name, last_name FROM users WHERE id = ?");
                     $userStmt->execute([$order['user_id']]);
@@ -183,7 +193,8 @@ class Order {
         }
     }
 
-    public function getSellerOrderItems($orderId, $sellerId) {
+    public function getSellerOrderItems($orderId, $sellerId)
+    {
         try {
             $stmt = $this->pdo->prepare("
                 SELECT 
@@ -200,7 +211,7 @@ class Order {
             ");
             $stmt->execute([$orderId, $sellerId]);
             $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             foreach ($items as &$item) {
                 if ($item['product_image']) {
                     $imagePath = $item['product_image'];
@@ -210,14 +221,15 @@ class Order {
                     $item['product_image'] = 'http://localhost:8080/' . $imagePath;
                 }
             }
-            
+
             return $items;
         } catch (Exception $e) {
             return [];
         }
     }
 
-    public function updateStatus($orderId, $status, $sellerId) {
+    public function updateStatus($orderId, $status, $sellerId)
+    {
         try {
             $stmt = $this->pdo->prepare("
                 SELECT COUNT(*) as count
@@ -227,7 +239,7 @@ class Order {
             ");
             $stmt->execute([$orderId, $sellerId]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($result['count'] == 0) {
                 throw new Exception('Keine Berechtigung für diese Bestellung');
             }
@@ -242,6 +254,22 @@ class Order {
             return ['success' => true];
         } catch (Exception $e) {
             throw new Exception('Fehler beim Aktualisieren des Status: ' . $e->getMessage());
+        }
+    }
+
+    public function updatePaymentStatus($orderNumber, $paymentStatus)
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE orders 
+                SET payment_status = ? 
+                WHERE order_number = ?
+            ");
+            $stmt->execute([$paymentStatus, $orderNumber]);
+
+            return ['success' => true];
+        } catch (Exception $e) {
+            throw new Exception('Fehler beim Aktualisieren des Zahlungsstatus: ' . $e->getMessage());
         }
     }
 }

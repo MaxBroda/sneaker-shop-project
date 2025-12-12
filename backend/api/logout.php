@@ -1,9 +1,5 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:3000');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Credentials: true');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -11,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/../utils/db_connection.php';
-require_once __DIR__ . '/../utils/cors.php';
+
 require_once __DIR__ . '/../utils/auth.php';
 require_once __DIR__ . '/../models/Cart.php';
 
@@ -40,15 +36,15 @@ try {
 
     if ($stmt->rowCount() > 0) {
         $oldSessionId = $_SESSION['cart_session_id'] ?? null;
-        
+
         if ($oldSessionId) {
             $deleteStmt = $pdo->prepare("DELETE FROM cart_items WHERE session_id = ? AND user_id IS NULL");
             $deleteStmt->execute([$oldSessionId]);
         }
-        
+
         session_regenerate_id(true);
         $_SESSION['cart_session_id'] = bin2hex(random_bytes(16));
-        
+
         echo json_encode([
             'success' => true,
             'message' => 'Erfolgreich ausgeloggt'

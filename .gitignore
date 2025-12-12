@@ -3,4 +3,10 @@ dist/
 .env
 .vscode/
 .DS_Store
-backend/database.sqlite
+
+# Backend
+backend/database/database.sqlite
+backend/vendor/
+backend/storage/*.json
+backend/uploads/*
+!backend/uploads/.gitkeep

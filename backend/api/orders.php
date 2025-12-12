@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/../utils/cors.php';
+
+header('Content-Type: application/json');
+
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/auth.php';
 require_once __DIR__ . '/../models/Order.php';
@@ -21,10 +23,10 @@ if (preg_match('/Bearer\s+(.+)/', $authHeader, $matches)) {
 if ($method === 'GET') {
     error_log("Orders GET - Token received: " . $token);
     error_log("Orders GET - Auth header: " . $authHeader);
-    
+
     $user = getUserFromToken($token, $pdo);
     error_log("Orders GET - User found: " . ($user ? json_encode($user) : 'null'));
-    
+
     if (!$user) {
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Nicht autorisiert']);
@@ -33,7 +35,7 @@ if ($method === 'GET') {
 
     try {
         $orders = $orderModel->getUserOrders($user['id']);
-        
+
         echo json_encode([
             'success' => true,
             'data' => $orders
@@ -50,7 +52,7 @@ if ($method === 'GET') {
 
 if ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
-    
+
     $user = null;
     if ($token) {
         $user = getUserFromToken($token, $pdo);

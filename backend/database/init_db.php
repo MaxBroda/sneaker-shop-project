@@ -75,6 +75,7 @@ try {
             order_number TEXT UNIQUE NOT NULL,
             total REAL NOT NULL,
             status TEXT DEFAULT 'pending',
+            payment_status TEXT DEFAULT 'open',
             billing_address TEXT NOT NULL,
             shipping_address TEXT,
             payment_method TEXT,

@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white p-6 shadow-md rounded-xl">
     <h2 class="text-xl font-semibold mb-4">Bestellungen</h2>
-    
+
     <div v-if="isLoading" class="text-center py-8">
       <p class="text-gray-500">Lade Bestellungen...</p>
     </div>
@@ -10,31 +10,56 @@
 
     <div v-else-if="orders.length === 0" class="text-center py-8">
       <p class="text-lg font-semibold">Noch keine Bestellungen vorhanden.</p>
-      <p class="text-sm mt-2 font-light text-gray-500">Ihre Bestellhistorie wird hier angezeigt.</p>
+      <p class="text-sm mt-2 font-light text-gray-500">
+        Ihre Bestellhistorie wird hier angezeigt.
+      </p>
     </div>
 
     <div v-else class="space-y-6">
-      <div v-for="order in orders" :key="order.id" class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div
+        v-for="order in orders"
+        :key="order.id"
+        class="border rounded-lg p-4 hover:shadow-md transition-shadow"
+      >
         <div class="flex justify-between items-start mb-4 pb-4 border-b">
           <div>
-            <h3 class="font-semibold text-lg">Bestellung {{ order.order_number }}</h3>
-            <p class="text-sm text-gray-500">{{ formatDate(order.created_at) }}</p>
+            <h3 class="font-semibold text-lg">
+              Bestellung {{ order.order_number }}
+            </h3>
+            <p class="text-sm text-gray-500">
+              {{ formatDate(order.created_at) }}
+            </p>
+            <p
+              v-if="order.payment_status === 'open'"
+              class="text-sm text-orange-600 font-medium mt-1"
+            >
+              ⚠️ Zahlung offen
+            </p>
           </div>
           <div class="text-right">
-            <span :class="getStatusClass(order.status)" class="px-3 py-1 rounded-full text-sm font-medium">
+            <span
+              :class="getStatusClass(order.status)"
+              class="px-3 py-1 rounded-full text-sm font-medium"
+            >
               {{ getStatusText(order.status) }}
             </span>
-            <p class="mt-2 font-semibold text-lg">{{ formatPrice(order.total) }}</p>
+            <p class="mt-2 font-semibold text-lg">
+              {{ formatPrice(order.total) }}
+            </p>
           </div>
         </div>
 
         <div class="mb-4">
           <h4 class="font-medium mb-3">Artikel</h4>
           <div class="space-y-3">
-            <div v-for="item in order.items" :key="item.id" class="flex items-center gap-4">
-              <img 
-                v-if="item.product_image" 
-                :src="item.product_image" 
+            <div
+              v-for="item in order.items"
+              :key="item.id"
+              class="flex items-center gap-4"
+            >
+              <img
+                v-if="item.product_image"
+                :src="item.product_image"
                 :alt="item.product_name"
                 class="w-16 h-16 object-cover rounded"
               />
@@ -44,7 +69,9 @@
                 <p class="text-sm text-gray-500">Menge: {{ item.quantity }}</p>
               </div>
               <div class="text-right">
-                <p class="font-medium">{{ formatPrice(item.price * item.quantity) }}</p>
+                <p class="font-medium">
+                  {{ formatPrice(item.price * item.quantity) }}
+                </p>
               </div>
             </div>
           </div>
@@ -54,9 +81,18 @@
           <div>
             <h4 class="font-medium mb-2">Rechnungsadresse</h4>
             <div class="text-sm text-gray-500">
-              <p>{{ order.billing_address.first_name }} {{ order.billing_address.last_name }}</p>
-              <p>{{ order.billing_address.street }} {{ order.billing_address.house_number }}</p>
-              <p>{{ order.billing_address.postal_code }} {{ order.billing_address.city }}</p>
+              <p>
+                {{ order.billing_address.first_name }}
+                {{ order.billing_address.last_name }}
+              </p>
+              <p>
+                {{ order.billing_address.street }}
+                {{ order.billing_address.house_number }}
+              </p>
+              <p>
+                {{ order.billing_address.postal_code }}
+                {{ order.billing_address.city }}
+              </p>
               <p>{{ order.billing_address.country }}</p>
             </div>
           </div>
@@ -64,8 +100,14 @@
           <div v-if="order.shipping_address">
             <h4 class="font-medium mb-2">Lieferadresse</h4>
             <div class="text-sm text-gray-500">
-              <p>{{ order.shipping_address.street }} {{ order.shipping_address.house_number }}</p>
-              <p>{{ order.shipping_address.postal_code }} {{ order.shipping_address.city }}</p>
+              <p>
+                {{ order.shipping_address.street }}
+                {{ order.shipping_address.house_number }}
+              </p>
+              <p>
+                {{ order.shipping_address.postal_code }}
+                {{ order.shipping_address.city }}
+              </p>
               <p>{{ order.shipping_address.country }}</p>
             </div>
           </div>
@@ -77,7 +119,7 @@
 
         <div class="mt-4 pt-4 border-t">
           <p class="text-sm text-gray-500">
-            <span class="font-medium">Zahlungsmethode:</span> 
+            <span class="font-medium">Zahlungsmethode:</span>
             {{ getPaymentMethodText(order.payment_method) }}
           </p>
         </div>
@@ -87,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import AlertMessage from '~/components/ui/AlertMessage.vue';
+import AlertMessage from "~/components/ui/AlertMessage.vue";
 
 interface OrderItem {
   id: number;
@@ -115,6 +157,7 @@ interface Order {
   order_number: string;
   total: number;
   status: string;
+  payment_status: string;
   payment_method: string;
   created_at: string;
   billing_address: Address;
@@ -127,37 +170,49 @@ const { token } = useAuth();
 
 const orders = ref<Order[]>([]);
 const isLoading = ref(true);
-const error = ref('');
+const error = ref("");
 
 async function fetchOrders() {
   try {
     isLoading.value = true;
-    error.value = '';
+    error.value = "";
 
-    const authToken = token.value || localStorage.getItem('token');
-    console.log('[OrdersSection] Token from useAuth:', token.value);
-    console.log('[OrdersSection] Token from localStorage:', localStorage.getItem('token'));
-    console.log('[OrdersSection] Using token:', authToken);
+    const authToken = token.value || localStorage.getItem("token");
+    console.log("[OrdersSection] Token from useAuth:", token.value);
+    console.log(
+      "[OrdersSection] Token from localStorage:",
+      localStorage.getItem("token")
+    );
+    console.log("[OrdersSection] Using token:", authToken);
 
     const response = await $fetch<any>(`${config.public.apiUrl}/orders.php`, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${authToken}`,
-      }
+      },
     });
 
     if (response.success) {
       orders.value = response.data;
-      console.log('[OrdersSection] Orders received:', response.data);
+      console.log("[OrdersSection] Orders received:", response.data);
       if (response.data.length > 0) {
-        console.log('[OrdersSection] First order items:', response.data[0].items);
+        console.log("[OrdersSection] First order:", response.data[0]);
+        console.log(
+          "[OrdersSection] First order payment_status:",
+          response.data[0].payment_status
+        );
+        console.log(
+          "[OrdersSection] First order payment_status type:",
+          typeof response.data[0].payment_status
+        );
       }
     } else {
-      throw new Error(response.message || 'Fehler beim Laden der Bestellungen');
+      throw new Error(response.message || "Fehler beim Laden der Bestellungen");
     }
   } catch (err: any) {
-    console.error('Error fetching orders:', err);
-    error.value = err.data?.message || err.message || 'Fehler beim Laden der Bestellungen';
+    console.error("Error fetching orders:", err);
+    error.value =
+      err.data?.message || err.message || "Fehler beim Laden der Bestellungen";
   } finally {
     isLoading.value = false;
   }
@@ -165,12 +220,12 @@ async function fetchOrders() {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString('de-DE', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+  return date.toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
@@ -180,32 +235,33 @@ function formatPrice(price: number): string {
 
 function getStatusText(status: string): string {
   const statusMap: Record<string, string> = {
-    'pending': 'Ausstehend',
-    'processing': 'In Bearbeitung',
-    'shipped': 'Versandt',
-    'delivered': 'Zugestellt',
-    'cancelled': 'Storniert'
+    pending: "Ausstehend",
+    processing: "In Bearbeitung",
+    shipped: "Versandt",
+    delivered: "Zugestellt",
+    cancelled: "Storniert",
   };
   return statusMap[status] || status;
 }
 
 function getStatusClass(status: string): string {
   const classMap: Record<string, string> = {
-    'pending': 'bg-yellow-100 text-yellow-800',
-    'processing': 'bg-blue-100 text-blue-800',
-    'shipped': 'bg-purple-100 text-purple-800',
-    'delivered': 'bg-green-100 text-green-800',
-    'cancelled': 'bg-red-100 text-red-800'
+    pending: "bg-yellow-100 text-yellow-800",
+    processing: "bg-blue-100 text-blue-800",
+    shipped: "bg-purple-100 text-purple-800",
+    delivered: "bg-green-100 text-green-800",
+    cancelled: "bg-red-100 text-red-800",
   };
-  return classMap[status] || 'bg-gray-100 ';
+  return classMap[status] || "bg-gray-100 ";
 }
 
 function getPaymentMethodText(method: string): string {
   const methodMap: Record<string, string> = {
-    'credit-card': 'Kreditkarte',
-    'paypal': 'PayPal',
-    'bank-transfer': 'Banküberweisung',
-    'cash-on-delivery': 'Nachnahme'
+    "credit-card": "Kreditkarte",
+    creditcard: "Kreditkarte",
+    paypal: "PayPal",
+    "bank-transfer": "Banküberweisung",
+    "cash-on-delivery": "Nachnahme",
   };
   return methodMap[method] || method;
 }

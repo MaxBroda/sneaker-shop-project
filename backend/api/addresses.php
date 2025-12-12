@@ -1,17 +1,14 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 require_once __DIR__ . '/../utils/db_connection.php';
-require_once __DIR__ . '/../utils/cors.php';
+
 require_once __DIR__ . '/../utils/auth.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] 
-    ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] 
+$authHeader = $_SERVER['HTTP_AUTHORIZATION']
+    ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
     ?? '';
 if (!$authHeader && function_exists('getallheaders')) {
     $headers = array_change_key_case(getallheaders(), CASE_LOWER);
@@ -41,7 +38,7 @@ try {
             $stmt = $pdo->prepare("SELECT id, street, house_number, city, postal_code, country, is_default FROM addresses WHERE user_id = ? ORDER BY is_default DESC, id ASC");
             $stmt->execute([$userId]);
             $addresses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             echo json_encode([
                 'success' => true,
                 'data' => $addresses
@@ -50,7 +47,7 @@ try {
 
         case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
-            
+
             if (!isset($data['street'], $data['house_number'], $data['city'], $data['postal_code'], $data['country'])) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Fehlende Pflichtfelder']);
@@ -75,7 +72,7 @@ try {
             ]);
 
             $newId = $pdo->lastInsertId();
-            
+
             echo json_encode([
                 'success' => true,
                 'message' => 'Adresse erfolgreich hinzugefügt',
@@ -85,7 +82,7 @@ try {
 
         case 'PUT':
             $data = json_decode(file_get_contents('php://input'), true);
-            
+
             if (!isset($data['id'])) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Adress-ID fehlt']);
@@ -108,13 +105,31 @@ try {
 
             $fields = [];
             $values = [];
-            
-            if (isset($data['street'])) { $fields[] = 'street = ?'; $values[] = $data['street']; }
-            if (isset($data['house_number'])) { $fields[] = 'house_number = ?'; $values[] = $data['house_number']; }
-            if (isset($data['city'])) { $fields[] = 'city = ?'; $values[] = $data['city']; }
-            if (isset($data['postal_code'])) { $fields[] = 'postal_code = ?'; $values[] = $data['postal_code']; }
-            if (isset($data['country'])) { $fields[] = 'country = ?'; $values[] = $data['country']; }
-            if (isset($data['is_default'])) { $fields[] = 'is_default = ?'; $values[] = $data['is_default'] ? 1 : 0; }
+
+            if (isset($data['street'])) {
+                $fields[] = 'street = ?';
+                $values[] = $data['street'];
+            }
+            if (isset($data['house_number'])) {
+                $fields[] = 'house_number = ?';
+                $values[] = $data['house_number'];
+            }
+            if (isset($data['city'])) {
+                $fields[] = 'city = ?';
+                $values[] = $data['city'];
+            }
+            if (isset($data['postal_code'])) {
+                $fields[] = 'postal_code = ?';
+                $values[] = $data['postal_code'];
+            }
+            if (isset($data['country'])) {
+                $fields[] = 'country = ?';
+                $values[] = $data['country'];
+            }
+            if (isset($data['is_default'])) {
+                $fields[] = 'is_default = ?';
+                $values[] = $data['is_default'] ? 1 : 0;
+            }
 
             if (empty($fields)) {
                 http_response_code(400);
@@ -137,7 +152,7 @@ try {
 
         case 'DELETE':
             $addressId = $_GET['id'] ?? null;
-            
+
             if (!$addressId) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Adress-ID fehlt']);

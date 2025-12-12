@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../utils/cors.php';
+header('Content-Type: application/json');
+
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/auth.php';
 require_once __DIR__ . '/../models/Cart.php';
@@ -24,16 +25,16 @@ if ($authHeader) {
     $user = getUserFromToken($token, $pdo);
     if ($user) {
         $userId = $user['id'];
-        
+
         $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM cart_items WHERE session_id = ? AND user_id IS NULL");
         $stmt->execute([$sessionId]);
         $guestCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-        
+
         if ($guestCount > 0) {
             $cart = new Cart($pdo);
             $cart->mergeCarts($userId, $sessionId);
         }
-        
+
         $sessionId = null;
     }
 }
@@ -54,7 +55,7 @@ try {
 
         case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
-            
+
             if (!isset($data['product_id']) || !isset($data['size'])) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Produkt-ID und Größe erforderlich']);
@@ -63,7 +64,7 @@ try {
 
             $quantity = $data['quantity'] ?? 1;
             $result = $cart->addItem($userId, $sessionId, $data['product_id'], $quantity, $data['size']);
-            
+
             if ($result['success']) {
                 $items = $cart->getCartItems($userId, $sessionId);
                 echo json_encode([
@@ -80,7 +81,7 @@ try {
 
         case 'PUT':
             $data = json_decode(file_get_contents('php://input'), true);
-            
+
             if (!isset($data['cart_item_id']) || !isset($data['quantity'])) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'message' => 'Warenkorb-Item-ID und Menge erforderlich']);
@@ -88,7 +89,7 @@ try {
             }
 
             $result = $cart->updateQuantity($data['cart_item_id'], $userId, $sessionId, $data['quantity']);
-            
+
             if ($result['success']) {
                 $items = $cart->getCartItems($userId, $sessionId);
                 echo json_encode([
@@ -105,10 +106,10 @@ try {
 
         case 'DELETE':
             $data = json_decode(file_get_contents('php://input'), true);
-            
+
             if (!isset($data['cart_item_id'])) {
                 $result = $cart->clearCart($userId, $sessionId);
-                
+
                 if ($result['success']) {
                     echo json_encode([
                         'success' => true,
@@ -124,7 +125,7 @@ try {
             }
 
             $result = $cart->removeItem($data['cart_item_id'], $userId, $sessionId);
-            
+
             if ($result['success']) {
                 $items = $cart->getCartItems($userId, $sessionId);
                 echo json_encode([

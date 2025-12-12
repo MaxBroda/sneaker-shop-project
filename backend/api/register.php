@@ -1,11 +1,8 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../utils/db_connection.php';
-require_once __DIR__ . '/../utils/cors.php';
+
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -38,11 +35,11 @@ try {
         }
     }
 
-     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Ungültige E-Mail-Adresse.']);
         exit;
-    }   
+    }
 
     $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $checkStmt->execute([$email]);

@@ -1,11 +1,8 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 require_once __DIR__ . '/../utils/db_connection.php';
-require_once __DIR__ . '/../utils/cors.php';
+
 require_once __DIR__ . '/../utils/auth.php';
 require_once __DIR__ . '/../models/User.php';
 
@@ -13,8 +10,8 @@ $userModel = new User($pdo);
 
 try {
     if (isset($_GET['user_id'])) {
-        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] 
-            ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] 
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION']
+            ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
             ?? '';
         if (!$authHeader && function_exists('getallheaders')) {
             $headers = array_change_key_case(getallheaders(), CASE_LOWER);
@@ -70,7 +67,7 @@ try {
     http_response_code(500);
     error_log("Users API Error: " . $e->getMessage());
     echo json_encode([
-        'success' => false, 
+        'success' => false,
         'message' => 'Server error: ' . $e->getMessage(),
         'trace' => $e->getTraceAsString()
     ]);

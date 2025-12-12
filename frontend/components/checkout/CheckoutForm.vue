@@ -23,9 +23,12 @@
       <div class="lg:col-span-2 space-y-6">
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
           <div class="flex items-center gap-3 mb-6">
-            <Icon name="mdi:account-details" class="w-8 h-8 text-shop-blue-light" />
+            <Icon
+              name="mdi:account-details"
+              class="w-8 h-8 text-shop-blue-light"
+            />
             <h2 class="text-2xl font-bold text-shop-blue-dark">
-              {{ isGuest ? 'Deine Daten' : 'Adressdaten' }}
+              {{ isGuest ? "Deine Daten" : "Adressdaten" }}
             </h2>
           </div>
 
@@ -38,7 +41,10 @@
               <div>
                 <div class="flex items-center justify-between mb-3">
                   <div class="flex items-center gap-2">
-                    <Icon name="mdi:receipt-text" class="w-5 h-5 text-gray-500" />
+                    <Icon
+                      name="mdi:receipt-text"
+                      class="w-5 h-5 text-gray-500"
+                    />
                     <h3 class="font-semibold text-lg">Rechnungsadresse</h3>
                   </div>
                   <button
@@ -51,18 +57,30 @@
                   </button>
                 </div>
 
-                <div v-if="billingAddress" class="bg-gradient-to-br from-shop-blue-light/5 to-shop-blue-dark/5 border-2 border-shop-blue-light rounded-xl p-5 shadow-sm">
-                  <div class="space-y-1 ">
-                    <p class="font-medium text-lg">{{ form.firstName }} {{ form.lastName }}</p>
-                    <p>{{ billingAddress.street }} {{ billingAddress.house_number }}</p>
-                    <p>{{ billingAddress.postal_code }} {{ billingAddress.city }}</p>
+                <div
+                  v-if="billingAddress"
+                  class="bg-gradient-to-br from-shop-blue-light/5 to-shop-blue-dark/5 border-2 border-shop-blue-light rounded-xl p-5 shadow-sm"
+                >
+                  <div class="space-y-1">
+                    <p class="font-medium text-lg">
+                      {{ form.firstName }} {{ form.lastName }}
+                    </p>
+                    <p>
+                      {{ billingAddress.street }}
+                      {{ billingAddress.house_number }}
+                    </p>
+                    <p>
+                      {{ billingAddress.postal_code }} {{ billingAddress.city }}
+                    </p>
                     <p>{{ billingAddress.country }}</p>
                   </div>
                 </div>
               </div>
 
               <!-- Shipping Address Toggle -->
-              <div class="mt-6 p-5 bg-gray-50 rounded-xl border border-gray-200">
+              <div
+                class="mt-6 p-5 bg-gray-50 rounded-xl border border-gray-200"
+              >
                 <label class="flex items-start gap-3 cursor-pointer group">
                   <input
                     type="checkbox"
@@ -70,8 +88,13 @@
                     class="w-5 h-5 mt-0.5 accent-shop-blue-light cursor-pointer"
                   />
                   <div>
-                    <span class="font-semibold  group-hover:text-shop-blue-dark transition-colors">An andere Adresse liefern</span>
-                    <p class="text-sm text-gray-500 mt-1">Lieferadresse weicht von der Rechnungsadresse ab</p>
+                    <span
+                      class="font-semibold group-hover:text-shop-blue-dark transition-colors"
+                      >An andere Adresse liefern</span
+                    >
+                    <p class="text-sm text-gray-500 mt-1">
+                      Lieferadresse weicht von der Rechnungsadresse ab
+                    </p>
                   </div>
                 </label>
               </div>
@@ -89,21 +112,35 @@
                     class="px-4 py-2 text-sm text-shop-blue-light hover:bg-shop-blue-light/10 font-medium rounded-lg transition-colors flex items-center gap-1"
                   >
                     <Icon name="mdi:pencil" class="w-4 h-4" />
-                    {{ shippingAddress ? 'Ändern' : 'Auswählen' }}
+                    {{ shippingAddress ? "Ändern" : "Auswählen" }}
                   </button>
                 </div>
 
-                <div v-if="shippingAddress" class="bg-gray-50 border-2 border-gray-300 rounded-xl p-5">
-                  <div class="space-y-1 ">
-                    <p class="font-medium">{{ shippingAddress.street }} {{ shippingAddress.house_number }}</p>
-                    <p>{{ shippingAddress.postal_code }} {{ shippingAddress.city }}</p>
+                <div
+                  v-if="shippingAddress"
+                  class="bg-gray-50 border-2 border-gray-300 rounded-xl p-5"
+                >
+                  <div class="space-y-1">
+                    <p class="font-medium">
+                      {{ shippingAddress.street }}
+                      {{ shippingAddress.house_number }}
+                    </p>
+                    <p>
+                      {{ shippingAddress.postal_code }}
+                      {{ shippingAddress.city }}
+                    </p>
                     <p>{{ shippingAddress.country }}</p>
                   </div>
                 </div>
 
-                <div v-else class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-5 flex items-center gap-3">
+                <div
+                  v-else
+                  class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-5 flex items-center gap-3"
+                >
                   <Icon name="mdi:alert" class="w-6 h-6 text-yellow-600" />
-                  <p class="text-sm text-yellow-800">Bitte wählen Sie eine Lieferadresse aus</p>
+                  <p class="text-sm text-yellow-800">
+                    Bitte wählen Sie eine Lieferadresse aus
+                  </p>
                 </div>
               </div>
             </div>
@@ -112,7 +149,7 @@
             <div v-if="isGuest">
               <div class="grid md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label class="block text-sm font-semibold mb-2 ">
+                  <label class="block text-sm font-semibold mb-2">
                     Vorname *
                   </label>
                   <input
@@ -124,7 +161,7 @@
                   />
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2 ">
+                  <label class="block text-sm font-semibold mb-2">
                     Nachname *
                   </label>
                   <input
@@ -138,7 +175,7 @@
               </div>
 
               <div class="mb-6">
-                <label class="block text-sm font-semibold mb-2 ">
+                <label class="block text-sm font-semibold mb-2">
                   E-Mail *
                 </label>
                 <input
@@ -152,7 +189,7 @@
 
               <div class="grid md:grid-cols-3 gap-4 mb-6">
                 <div class="md:col-span-2">
-                  <label class="block text-sm font-semibold mb-2 ">
+                  <label class="block text-sm font-semibold mb-2">
                     Straße *
                   </label>
                   <input
@@ -164,7 +201,7 @@
                   />
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold mb-2 ">
+                  <label class="block text-sm font-semibold mb-2">
                     Hausnummer *
                   </label>
                   <input
@@ -179,7 +216,7 @@
 
               <div class="grid md:grid-cols-3 gap-4 mb-6">
                 <div>
-                  <label class="block text-sm font-semibold mb-2 ">
+                  <label class="block text-sm font-semibold mb-2">
                     PLZ *
                   </label>
                   <input
@@ -191,7 +228,7 @@
                   />
                 </div>
                 <div class="md:col-span-2">
-                  <label class="block text-sm font-semibold mb-2 ">
+                  <label class="block text-sm font-semibold mb-2">
                     Stadt *
                   </label>
                   <input
@@ -205,9 +242,7 @@
               </div>
 
               <div class="mb-6">
-                <label class="block text-sm font-semibold mb-2 ">
-                  Land *
-                </label>
+                <label class="block text-sm font-semibold mb-2"> Land * </label>
                 <select
                   v-model="form.country"
                   required
@@ -221,8 +256,13 @@
             </div>
 
             <div class="pt-6 border-t border-gray-200">
-              <h3 class="text-lg font-bold text-shop-blue-dark mb-4 flex items-center gap-2">
-                <Icon name="mdi:credit-card" class="w-6 h-6 text-shop-blue-light" />
+              <h3
+                class="text-lg font-bold text-shop-blue-dark mb-4 flex items-center gap-2"
+              >
+                <Icon
+                  name="mdi:credit-card"
+                  class="w-6 h-6 text-shop-blue-light"
+                />
                 Zahlungsart
               </h3>
               <div class="space-y-3">
@@ -251,13 +291,19 @@
                 required
                 class="w-5 h-5 mt-0.5 accent-shop-blue-light"
               />
-              <label class="text-sm ">
-                Ich akzeptiere die 
-                <NuxtLink to="/terms" class="text-shop-blue-light hover:underline font-semibold">
+              <label class="text-sm">
+                Ich akzeptiere die
+                <NuxtLink
+                  to="/terms"
+                  class="text-shop-blue-light hover:underline font-semibold"
+                >
                   AGB
                 </NuxtLink>
                 und die
-                <NuxtLink to="/privacy" class="text-shop-blue-light hover:underline font-semibold">
+                <NuxtLink
+                  to="/privacy"
+                  class="text-shop-blue-light hover:underline font-semibold"
+                >
                   Datenschutzerklärung
                 </NuxtLink>
                 *
@@ -269,9 +315,17 @@
               :disabled="isSubmitting || !form.agreeToTerms"
               class="w-full bg-signal-red hover:opacity-90 text-white py-4 rounded-lg font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <Icon v-if="isSubmitting" name="mdi:loading" class="w-6 h-6 animate-spin" />
+              <Icon
+                v-if="isSubmitting"
+                name="mdi:loading"
+                class="w-6 h-6 animate-spin"
+              />
               <Icon v-else name="mdi:lock-check" class="w-6 h-6" />
-              <span>{{ isSubmitting ? 'Wird verarbeitet...' : 'Zahlungspflichtig bestellen' }}</span>
+              <span>{{
+                isSubmitting
+                  ? "Wird verarbeitet..."
+                  : "Zahlungspflichtig bestellen"
+              }}</span>
             </button>
           </form>
         </div>
@@ -279,7 +333,9 @@
 
       <div class="lg:col-span-1">
         <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-6">
-          <h2 class="text-xl font-bold text-shop-blue-dark mb-4 flex items-center gap-2">
+          <h2
+            class="text-xl font-bold text-shop-blue-dark mb-4 flex items-center gap-2"
+          >
             <Icon name="mdi:shopping" class="w-6 h-6 text-shop-blue-light" />
             Bestellübersicht
           </h2>
@@ -298,9 +354,13 @@
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-sm truncate">{{ item.name }}</p>
                 <p class="text-xs text-gray-500">Größe: {{ item.size }}</p>
-                <p class="text-xs text-gray-500">{{ item.quantity }}x {{ formatPrice(item.price) }}</p>
+                <p class="text-xs text-gray-500">
+                  {{ item.quantity }}x {{ formatPrice(item.price) }}
+                </p>
               </div>
-              <p class="font-bold text-shop-blue-dark">{{ formatPrice(item.price * item.quantity) }}</p>
+              <p class="font-bold text-shop-blue-dark">
+                {{ formatPrice(item.price * item.quantity) }}
+              </p>
             </div>
           </div>
 
@@ -311,11 +371,17 @@
             </div>
             <div class="flex justify-between text-gray-500">
               <span>Versand</span>
-              <span>{{ shippingCost > 0 ? formatPrice(shippingCost) : 'Kostenlos' }}</span>
+              <span>{{
+                shippingCost > 0 ? formatPrice(shippingCost) : "Kostenlos"
+              }}</span>
             </div>
-            <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+            <div
+              class="flex justify-between items-center pt-3 border-t border-gray-200"
+            >
               <span class="font-bold text-lg">Gesamt:</span>
-              <span class="font-bold text-2xl text-shop-blue-dark">{{ formatPrice(total) }}</span>
+              <span class="font-bold text-2xl text-shop-blue-dark">{{
+                formatPrice(total)
+              }}</span>
             </div>
             <p class="text-xs text-gray-500 text-right">Inkl. MwSt.</p>
           </div>
@@ -330,7 +396,10 @@
               <span>Sichere Zahlung</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-500">
-              <Icon name="mdi:keyboard-return" class="w-5 h-5 text-signal-green" />
+              <Icon
+                name="mdi:keyboard-return"
+                class="w-5 h-5 text-signal-green"
+              />
               <span>30 Tage Rückgaberecht</span>
             </div>
           </div>
@@ -341,7 +410,7 @@
 </template>
 
 <script setup lang="ts">
-import AlertMessage from '~/components/ui/AlertMessage.vue';
+import AlertMessage from "~/components/ui/AlertMessage.vue";
 
 const config = useRuntimeConfig();
 const { cartItems, cartTotal, formatPrice } = useCart();
@@ -354,38 +423,39 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  'order-complete': [orderNumber: string];
+  "order-complete": [orderNumber: string];
 }>();
 
 const form = reactive({
-  firstName: '',
-  lastName: '',
-  email: '',
-  street: '',
-  houseNumber: '',
-  city: '',
-  postalCode: '',
-  country: 'Deutschland',
-  paymentMethod: 'paypal',
+  firstName: "",
+  lastName: "",
+  email: "",
+  street: "",
+  houseNumber: "",
+  city: "",
+  postalCode: "",
+  country: "Deutschland",
+  paymentMethod: "creditcard",
   agreeToTerms: false,
 });
 
 const shippingForm = reactive({
-  street: '',
-  houseNumber: '',
-  city: '',
-  postalCode: '',
-  country: 'Deutschland',
+  street: "",
+  houseNumber: "",
+  city: "",
+  postalCode: "",
+  country: "Deutschland",
 });
 
 const paymentMethods = [
-  { value: 'paypal', label: 'PayPal', icon: 'mdi:paypal' },
-  { value: 'creditcard', label: 'Kreditkarte', icon: 'mdi:credit-card' },
-  { value: 'klarna', label: 'Klarna', icon: 'mdi:alpha-k-box' },
-  { value: 'sepa', label: 'SEPA-Lastschrift', icon: 'mdi:bank' },
+  { value: "creditcard", label: "Kreditkarte", icon: "mdi:credit-card" },
+  { value: "ideal", label: "iDEAL", icon: "mdi:bank" },
+  { value: "paypal", label: "PayPal", icon: "mdi:paypal" },
+  { value: "bancontact", label: "Bancontact", icon: "mdi:credit-card-outline" },
+  { value: "sofort", label: "SOFORT", icon: "mdi:bank-transfer" },
 ];
 
-const errorMessage = ref('');
+const errorMessage = ref("");
 const isSubmitting = ref(false);
 const useDifferentShipping = ref(false);
 const savedAddresses = ref<any[]>([]);
@@ -395,61 +465,70 @@ const showBillingModal = ref(false);
 const showShippingModal = ref(false);
 
 const subtotal = computed(() => cartTotal.value);
-const shippingCost = computed(() => subtotal.value >= 50 ? 0 : 4.99);
+const shippingCost = computed(() => (subtotal.value >= 50 ? 0 : 4.99));
 const total = computed(() => subtotal.value + shippingCost.value);
 
-watch(() => props.user, (newUser) => {
-  if (newUser && !props.isGuest) {
-    form.firstName = newUser.firstName || '';
-    form.lastName = newUser.lastName || '';
-    form.email = newUser.email || '';
-    
-    if (newUser.address) {
-      form.street = newUser.address.street || '';
-      form.houseNumber = newUser.address.house_number || '';
-      form.city = newUser.address.city || '';
-      form.postalCode = newUser.address.postal_code || '';
-      form.country = newUser.address.country || 'Deutschland';
+watch(
+  () => props.user,
+  (newUser) => {
+    if (newUser && !props.isGuest) {
+      form.firstName = newUser.firstName || "";
+      form.lastName = newUser.lastName || "";
+      form.email = newUser.email || "";
+
+      if (newUser.address) {
+        form.street = newUser.address.street || "";
+        form.houseNumber = newUser.address.house_number || "";
+        form.city = newUser.address.city || "";
+        form.postalCode = newUser.address.postal_code || "";
+        form.country = newUser.address.country || "Deutschland";
+      }
+
+      loadSavedAddresses();
     }
-    
-    loadSavedAddresses();
-  }
-}, { immediate: false });
+  },
+  { immediate: false }
+);
 
 onMounted(() => {
   if (props.user && !props.isGuest) {
-    form.firstName = props.user.firstName || '';
-    form.lastName = props.user.lastName || '';
-    form.email = props.user.email || '';
-    
+    form.firstName = props.user.firstName || "";
+    form.lastName = props.user.lastName || "";
+    form.email = props.user.email || "";
+
     if (props.user.address) {
-      form.street = props.user.address.street || '';
-      form.houseNumber = props.user.address.house_number || '';
-      form.city = props.user.address.city || '';
-      form.postalCode = props.user.address.postal_code || '';
-      form.country = props.user.address.country || 'Deutschland';
+      form.street = props.user.address.street || "";
+      form.houseNumber = props.user.address.house_number || "";
+      form.city = props.user.address.city || "";
+      form.postalCode = props.user.address.postal_code || "";
+      form.country = props.user.address.country || "Deutschland";
     }
-    
+
     loadSavedAddresses();
   }
 });
 
 async function loadSavedAddresses() {
   if (!props.user) return;
-  
+
   const config = useRuntimeConfig();
   const { token } = useAuth();
-  
+
   try {
-    const response = await $fetch<any>(`${config.public.apiUrl}/addresses.php`, {
-      headers: {
-        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
-      },
-    });
-    
+    const response = await $fetch<any>(
+      `${config.public.apiUrl}/addresses.php`,
+      {
+        headers: {
+          Authorization: `Bearer ${
+            token.value || localStorage.getItem("token")
+          }`,
+        },
+      }
+    );
+
     if (response.success && response.data) {
       savedAddresses.value = response.data;
-      
+
       const defaultAddr = response.data.find((addr: any) => addr.is_default);
       if (defaultAddr) {
         billingAddress.value = defaultAddr;
@@ -461,13 +540,13 @@ async function loadSavedAddresses() {
       }
     }
   } catch (error: any) {
-    console.error('Failed to load addresses:', error);
+    console.error("Failed to load addresses:", error);
     savedAddresses.value = [];
   }
 }
 
 function handleBillingSelect(address: any) {
-  console.log('Selected billing address:', address);
+  console.log("Selected billing address:", address);
   billingAddress.value = address;
   form.street = address.street;
   form.houseNumber = address.house_number;
@@ -475,15 +554,15 @@ function handleBillingSelect(address: any) {
   form.postalCode = address.postal_code;
   form.country = address.country;
   showBillingModal.value = false;
-  
-  const addressExists = savedAddresses.value.some(a => a.id === address.id);
+
+  const addressExists = savedAddresses.value.some((a) => a.id === address.id);
   if (!addressExists) {
     loadSavedAddresses();
   }
 }
 
 function handleShippingSelect(address: any) {
-  console.log('Selected shipping address:', address);
+  console.log("Selected shipping address:", address);
   shippingAddress.value = address;
   shippingForm.street = address.street;
   shippingForm.houseNumber = address.house_number;
@@ -491,20 +570,20 @@ function handleShippingSelect(address: any) {
   shippingForm.postalCode = address.postal_code;
   shippingForm.country = address.country;
   showShippingModal.value = false;
-  
-  const addressExists = savedAddresses.value.some(a => a.id === address.id);
+
+  const addressExists = savedAddresses.value.some((a) => a.id === address.id);
   if (!addressExists) {
     loadSavedAddresses();
   }
 }
 
 function openBillingModal() {
-  console.log('Opening billing modal');
+  console.log("Opening billing modal");
   showBillingModal.value = true;
 }
 
 function openShippingModal() {
-  console.log('Opening shipping modal');
+  console.log("Opening shipping modal");
   showShippingModal.value = true;
 }
 
@@ -516,22 +595,21 @@ function closeShippingModal() {
   showShippingModal.value = false;
 }
 
-function cancelAddressEdit() {
-}
+function cancelAddressEdit() {}
 
 watch(useDifferentShipping, (newValue) => {
   if (!newValue) {
     shippingAddress.value = null;
-    shippingForm.street = '';
-    shippingForm.houseNumber = '';
-    shippingForm.city = '';
-    shippingForm.postalCode = '';
-    shippingForm.country = 'Deutschland';
+    shippingForm.street = "";
+    shippingForm.houseNumber = "";
+    shippingForm.city = "";
+    shippingForm.postalCode = "";
+    shippingForm.country = "Deutschland";
   }
 });
 
 async function handleSubmit() {
-  errorMessage.value = '';
+  errorMessage.value = "";
   isSubmitting.value = true;
 
   const config = useRuntimeConfig();
@@ -547,70 +625,103 @@ async function handleSubmit() {
       house_number: form.houseNumber,
       city: form.city,
       postal_code: form.postalCode,
-      country: form.country
+      country: form.country,
     };
 
-    const shippingAddressData = useDifferentShipping.value && shippingAddress.value ? {
-      street: shippingAddress.value.street,
-      house_number: shippingAddress.value.house_number,
-      city: shippingAddress.value.city,
-      postal_code: shippingAddress.value.postal_code,
-      country: shippingAddress.value.country
-    } : null;
+    const shippingAddressData =
+      useDifferentShipping.value && shippingAddress.value
+        ? {
+            street: shippingAddress.value.street,
+            house_number: shippingAddress.value.house_number,
+            city: shippingAddress.value.city,
+            postal_code: shippingAddress.value.postal_code,
+            country: shippingAddress.value.country,
+          }
+        : null;
 
-    const orderItems = cartItems.value.map(item => ({
+    const orderItems = cartItems.value.map((item) => ({
       product_id: item.product_id,
       quantity: item.quantity,
       size: item.size,
-      price: item.price
+      price: item.price,
     }));
 
-    console.log('Submitting order:', {
+    console.log("Submitting order:", {
       items: orderItems,
       total: total.value,
       billing_address: billingAddressData,
       shipping_address: shippingAddressData,
-      payment_method: form.paymentMethod
+      payment_method: form.paymentMethod,
     });
 
+    // STEP 1: Create order in database
     const response = await $fetch<any>(`${config.public.apiUrl}/orders.php`, {
-      method: 'POST',
-      headers: token.value ? {
-        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
-      } : {},
+      method: "POST",
+      headers: token.value
+        ? {
+            Authorization: `Bearer ${
+              token.value || localStorage.getItem("token")
+            }`,
+          }
+        : {},
       body: {
         items: orderItems,
         total: total.value,
         billing_address: billingAddressData,
         shipping_address: shippingAddressData,
-        payment_method: form.paymentMethod
-      }
+        payment_method: form.paymentMethod,
+      },
     });
 
-    console.log('Order response:', response);
-    console.log('Response type:', typeof response);
-    console.log('Response.success:', response.success);
-    console.log('Response.data:', response.data);
+    console.log("Order response:", response);
+    console.log("Response type:", typeof response);
+    console.log("Response.success:", response.success);
+    console.log("Response.data:", response.data);
 
     if (response.success) {
       const orderNumber = response.data.order_number;
-      console.log('Order number extracted:', orderNumber);
-      
-      console.log('Clearing cart...');
-      await clearCart();
-      console.log('Cart cleared');
-      
-      console.log('Emitting order-complete with:', orderNumber);
-      emit('order-complete', orderNumber);
-      console.log('Event emitted successfully');
+      console.log("Order number extracted:", orderNumber);
+
+      // STEP 2: Create Mollie payment
+      console.log("Creating Mollie payment...");
+      const paymentResponse = await $fetch<any>(
+        `${config.public.apiUrl}/mollie-payment.php`,
+        {
+          method: "POST",
+          body: {
+            amount: total.value,
+            description: `Bestellung #${orderNumber}`,
+            order_number: orderNumber,
+          },
+        }
+      );
+
+      console.log("Mollie payment response:", paymentResponse);
+
+      if (paymentResponse.success && paymentResponse.data.checkout_url) {
+        // STEP 3: Clear cart before redirecting to Mollie
+        console.log("Clearing cart...");
+        await clearCart();
+        console.log("Cart cleared");
+
+        // STEP 4: Redirect to Mollie checkout
+        console.log("Redirecting to Mollie checkout...");
+        window.location.href = paymentResponse.data.checkout_url;
+      } else {
+        throw new Error(
+          paymentResponse.message || "Zahlung konnte nicht erstellt werden"
+        );
+      }
     } else {
-      throw new Error(response.message || 'Bestellung fehlgeschlagen');
+      throw new Error(response.message || "Bestellung fehlgeschlagen");
     }
   } catch (error: any) {
-    console.error('Order error:', error);
-    console.error('Error details:', error.data);
-    errorMessage.value = error.data?.message || error.message || 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.';
-  } finally {
+    console.error("Order error:", error);
+    console.error("Error details:", error.data);
+    errorMessage.value =
+      error.data?.message ||
+      error.message ||
+      "Ein Fehler ist aufgetreten. Bitte versuche es erneut.";
     isSubmitting.value = false;
   }
 }
