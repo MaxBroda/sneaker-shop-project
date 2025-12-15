@@ -8,5 +8,3 @@ dist/
 backend/database/database.sqlite
 backend/vendor/
 backend/storage/*.json
-backend/uploads/*
-!backend/uploads/.gitkeep
