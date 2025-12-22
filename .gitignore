@@ -8,3 +8,6 @@ dist/
 backend/database/database.sqlite
 backend/vendor/
 backend/storage/*.json
+
+# User-uploaded product images (keep placeholder_*.jpg in repo)
+backend/uploads/product_*
