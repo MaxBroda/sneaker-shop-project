@@ -77,12 +77,11 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-1"> Land </label>
-          <input
+          <BaseDropdown
             v-model="addressForm.country"
-            type="text"
+            :options="countryOptions"
             required
-            class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-dark focus:border-transparent transition-all"
-            placeholder="Deutschland"
+            customClass="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-dark focus:border-transparent transition-all"
           />
         </div>
         <div class="flex justify-center max-md:w-full gap-2 !mt-6">
@@ -189,11 +188,11 @@
 
             <div>
               <label class="block text-sm font-medium  mb-1">Land</label>
-              <input
+              <BaseDropdown
                 v-model="addressForm.country"
-                type="text"
+                :options="countryOptions"
                 required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shop-blue-light focus:border-transparent"
+                customClass="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-shop-blue-light focus:border-transparent"
               />
             </div>
 
@@ -269,10 +268,9 @@
 
 <script setup lang="ts">
 import ConfirmDialog from "~/components/modals/ConfirmDialog.vue";
+import BaseDropdown from "~/components/ui/BaseDropdown.vue";
 
-const { user, token } = useAuth();
-const config = useRuntimeConfig();
-const API_URL = config.public.apiUrl;
+const api = useApi();
 
 interface Address {
   id?: number;
@@ -289,6 +287,12 @@ const emit = defineEmits<{
   error: [message: string];
 }>();
 
+const countryOptions = [
+  { value: "Deutschland", label: "Deutschland" },
+  { value: "Österreich", label: "Österreich" },
+  { value: "Schweiz", label: "Schweiz" },
+];
+
 const addresses = ref<Address[]>([]);
 const showAddressForm = ref(false);
 const editingAddressId = ref<number | null>(null);
@@ -302,7 +306,7 @@ const addressForm = reactive({
   house_number: "",
   city: "",
   postal_code: "",
-  country: "Deutschland",
+  country: "",
 });
 
 const defaultAddress = computed(() => addresses.value.find(a => a.is_default));
@@ -314,17 +318,12 @@ onMounted(() => {
 
 async function loadAddresses() {
   try {
-    const response = await $fetch<any>(`${API_URL}/addresses.php`, {
-      headers: {
-        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
-      },
-    });
+    const response = await api.get<Address[]>("/addresses.php");
 
-    if (response.success) {
+    if (response.success && response.data) {
       addresses.value = response.data;
     }
-  } catch (err) {
-    console.error('Failed to load addresses:', err);
+  } catch {
     emit("error", "Fehler beim Laden der Adressen");
   }
 }
@@ -367,23 +366,16 @@ function editAddress(id: number) {
 
 async function setDefaultAddress(id: number) {
   try {
-    const response = await $fetch<any>(`${API_URL}/addresses.php`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
-      },
-      body: {
-        id,
-        is_default: 1
-      }
+    const response = await api.put("/addresses.php", {
+      id,
+      is_default: 1
     });
 
     if (response.success) {
       await loadAddresses();
       emit("success", "Standardadresse erfolgreich geändert!");
     }
-  } catch (err) {
-    console.error('Failed to set default:', err);
+  } catch {
     emit("error", "Fehler beim Setzen der Standardadresse");
   }
 }
@@ -414,30 +406,18 @@ async function saveAddress() {
 
   try {
     if (editingAddressId.value !== null) {
-      const response = await $fetch<any>(`${API_URL}/addresses.php`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
-        },
-        body: {
-          id: editingAddressId.value,
-          ...addressForm
-        }
+      const response = await api.put("/addresses.php", {
+        id: editingAddressId.value,
+        ...addressForm
       });
 
       if (response.success) {
         emit("success", "Adresse erfolgreich aktualisiert!");
       }
     } else {
-      const response = await $fetch<any>(`${API_URL}/addresses.php`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
-        },
-        body: {
-          ...addressForm,
-          is_default: addresses.value.length === 0 ? 1 : 0
-        }
+      const response = await api.post("/addresses.php", {
+        ...addressForm,
+        is_default: addresses.value.length === 0 ? 1 : 0
       });
 
       if (response.success) {
@@ -447,15 +427,15 @@ async function saveAddress() {
 
     await loadAddresses();
     cancelAddressEdit();
-  } catch (err: any) {
-    console.error("Fehler:", err);
-    emit("error", err?.data?.message || "Fehler beim Speichern der Adresse");
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Fehler beim Speichern der Adresse";
+    emit("error", errorMessage);
   } finally {
     isSaving.value = false;
   }
 }
 
-async function deleteAddress(id: number) {
+function deleteAddress(id: number) {
   addressToDelete.value = id;
   showDeleteConfirm.value = true;
 }
@@ -472,20 +452,15 @@ async function confirmDelete() {
   showDeleteConfirm.value = false;
 
   try {
-    const response = await $fetch<any>(`${API_URL}/addresses.php?id=${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
-      },
-    });
+    const response = await api.del(`/addresses.php?id=${id}`);
 
     if (response.success) {
       await loadAddresses();
       emit("success", "Adresse erfolgreich gelöscht!");
     }
-  } catch (err: any) {
-    console.error("Fehler:", err);
-    emit("error", err?.data?.message || "Fehler beim Löschen der Adresse");
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Fehler beim Löschen der Adresse";
+    emit("error", errorMessage);
   } finally {
     addressToDelete.value = null;
   }

@@ -270,9 +270,8 @@
 <script setup lang="ts">
 import AlertMessage from '~/components/ui/AlertMessage.vue';
 
-const { token } = useAuth();
-const config = useRuntimeConfig();
-const API_URL = config.public.apiUrl;
+const { user } = useAuth();
+const api = useApi();
 
 const isLoading = ref(false);
 const errorMessage = ref("");
@@ -334,7 +333,7 @@ function getCategoryIcon(category: string): string {
 
 async function fetchAllProducts() {
   try {
-    const response = await $fetch<any>(`${API_URL}/product.php`);
+    const response = await api.get<any>('/product.php');
     if (response.success) {
       allProducts.value = response.data;
     }
@@ -411,27 +410,12 @@ async function uploadImage(file: File) {
   const objectUrl = URL.createObjectURL(file);
   
   img.onload = async () => {
-    
     imagePreview.value = objectUrl;
-    
-    let authToken = token.value;
-    if (!authToken && typeof window !== "undefined") {
-      authToken = localStorage.getItem("token");
-    }
-
-    const formData = new FormData();
-    formData.append('image', file);
 
     try {
-      const response = await $fetch<any>(`${API_URL}/upload.php`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: formData,
-      });
+      const response = await api.upload<{ filename: string }>('/upload.php', file, 'image');
 
-      if (response.success) {
+      if (response.success && response.data) {
         uploadedImageFilename.value = response.data.filename;
       } else {
         uploadError.value = response.message || 'Fehler beim Hochladen';
@@ -439,7 +423,7 @@ async function uploadImage(file: File) {
       }
     } catch (err: any) {
       console.error('Upload error:', err);
-      uploadError.value = err?.data?.message || 'Fehler beim Hochladen des Bildes';
+      uploadError.value = 'Fehler beim Hochladen des Bildes';
       imagePreview.value = null;
     }
   };
@@ -490,39 +474,18 @@ async function addProduct() {
     return;
   }
 
-  let authToken = token.value;
-  if (!authToken && typeof window !== "undefined") {
-    authToken = localStorage.getItem("token");
-  }
-
-  if (!authToken) {
-    errorMessage.value =
-      "Sie sind nicht angemeldet. Bitte melden Sie sich erneut an.";
-    navigateTo("/login");
-    return;
-  }
-
-  console.log("Sending request with token:", authToken);
-
   isLoading.value = true;
 
   try {
-    const response = await $fetch<any>(`${API_URL}/product.php`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-      body: {
-        name: form.name,
-        description: form.description,
-        price: priceValue,
-        category: form.categories.join(", "),
-        image: uploadedImageFilename.value,
-        technical_specs: form.technicalSpecs,
-        tag_icon: form.tagIcon,
-        tag_text: form.tagText,
-      },
+    const response = await api.post<any>('/product.php', {
+      name: form.name,
+      description: form.description,
+      price: priceValue,
+      category: form.categories.join(", "),
+      image: uploadedImageFilename.value,
+      technical_specs: form.technicalSpecs,
+      tag_icon: form.tagIcon,
+      tag_text: form.tagText,
     });
 
     if (response.success) {
@@ -554,7 +517,7 @@ async function addProduct() {
     }
   } catch (err: any) {
     console.error("Fehler:", err);
-    errorMessage.value = err?.data?.message || "Netzwerk- oder Serverfehler";
+    errorMessage.value = "Netzwerk- oder Serverfehler";
     window.scrollTo({ top: 0, behavior: 'smooth' });
     isLoading.value = false;
   }

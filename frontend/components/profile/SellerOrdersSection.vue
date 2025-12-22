@@ -36,7 +36,7 @@
             <p v-else class="text-sm text-gray-500 mt-1">Gast-Bestellung</p>
             <p
               v-if="order.payment_status === 'open'"
-              class="text-sm text-orange-600 font-medium mt-1"
+              class="inline-block text-sm text-orange-600 font-medium mt-1 bg-orange-100 px-2 py-1 rounded-full"
             >
               ⚠️ Zahlung offen
             </p>
@@ -170,8 +170,7 @@
 <script setup lang="ts">
 import AlertMessage from "~/components/ui/AlertMessage.vue";
 
-const config = useRuntimeConfig();
-const { token } = useAuth();
+const api = useApi();
 
 interface Order {
   id: number;
@@ -179,12 +178,24 @@ interface Order {
   total: number;
   status: string;
   payment_status: string;
-  billing_address: any;
-  shipping_address: any;
+  billing_address: Record<string, string>;
+  shipping_address: Record<string, string> | null;
   payment_method: string;
   created_at: string;
-  customer: any;
-  items: any[];
+  customer: {
+    email: string;
+    first_name: string;
+    last_name: string;
+  } | null;
+  items: Array<{
+    id: number;
+    product_id: number;
+    product_name: string;
+    product_image: string | null;
+    quantity: number;
+    size: string;
+    price: number;
+  }>;
 }
 
 const orders = ref<Order[]>([]);
@@ -205,26 +216,16 @@ async function fetchOrders() {
     isLoading.value = true;
     error.value = "";
 
-    const response = await $fetch<any>(
-      `${config.public.apiUrl}/seller-orders.php`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token.value}`,
-        },
-      }
-    );
+    const response = await api.get<Order[]>("/seller-orders.php");
 
-    if (response.success) {
+    if (response.success && response.data) {
       orders.value = response.data;
-      console.log("[SellerOrdersSection] Orders received:", response.data);
     } else {
       throw new Error(response.message || "Fehler beim Laden der Bestellungen");
     }
-  } catch (err: any) {
-    console.error("Error fetching seller orders:", err);
-    error.value =
-      err.data?.message || err.message || "Fehler beim Laden der Bestellungen";
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Fehler beim Laden der Bestellungen";
+    error.value = errorMessage;
   } finally {
     isLoading.value = false;
   }
@@ -232,19 +233,10 @@ async function fetchOrders() {
 
 async function updateOrderStatus(orderId: number, newStatus: string) {
   try {
-    const response = await $fetch<any>(
-      `${config.public.apiUrl}/seller-orders.php`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token.value}`,
-        },
-        body: {
-          order_id: orderId,
-          status: newStatus,
-        },
-      }
-    );
+    const response = await api.put("/seller-orders.php", {
+      order_id: orderId,
+      status: newStatus,
+    });
 
     if (response.success) {
       const order = orders.value.find((o) => o.id === orderId);
@@ -256,12 +248,9 @@ async function updateOrderStatus(orderId: number, newStatus: string) {
         response.message || "Fehler beim Aktualisieren des Status"
       );
     }
-  } catch (err: any) {
-    console.error("Error updating order status:", err);
-    error.value =
-      err.data?.message ||
-      err.message ||
-      "Fehler beim Aktualisieren des Status";
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Fehler beim Aktualisieren des Status";
+    error.value = errorMessage;
   }
 }
 
@@ -274,17 +263,20 @@ function selectStatus(orderId: number, newStatus: string) {
   openDropdown.value = null;
 }
 
+function handleClickOutside(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+  if (!target.closest(".relative")) {
+    openDropdown.value = null;
+  }
+}
+
 onMounted(() => {
   fetchOrders();
+  document.addEventListener("click", handleClickOutside);
+});
 
-  if (typeof window !== "undefined") {
-    document.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest(".relative")) {
-        openDropdown.value = null;
-      }
-    });
-  }
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
 });
 
 function formatDate(dateString: string): string {
@@ -337,49 +329,12 @@ function getStatusText(status: string): string {
 
 function getPaymentMethodText(method: string): string {
   const methodMap: Record<string, string> = {
-    "credit-card": "Kreditkarte",
-    creditcard: "Kreditkarte",
     paypal: "PayPal",
-    "bank-transfer": "Banküberweisung",
-    "cash-on-delivery": "Nachnahme",
+    klarna: "Klarna",
+    creditcard: "Kreditkarte",
+    mastercard: "Mastercard",
+    maestro: "Maestro",
   };
   return methodMap[method] || method;
 }
-
-function getPaymentStatusText(status: string): string {
-  const statusMap: Record<string, string> = {
-    open: "Zahlung offen",
-    pending: "Zahlung ausstehend",
-    paid: "Bezahlt",
-    failed: "Zahlung fehlgeschlagen",
-    canceled: "Zahlung abgebrochen",
-    expired: "Zahlung abgelaufen",
-  };
-  return statusMap[status] || status;
-}
-
-function getPaymentStatusClass(status: string): string {
-  const classMap: Record<string, string> = {
-    open: "bg-orange-100 text-orange-800",
-    pending: "bg-yellow-100 text-yellow-800",
-    paid: "bg-green-100 text-green-800",
-    failed: "bg-red-100 text-red-800",
-    canceled: "bg-gray-100 text-gray-800",
-    expired: "bg-red-100 text-red-800",
-  };
-  return classMap[status] || "bg-gray-100 text-gray-800";
-}
-
-onMounted(() => {
-  fetchOrders();
-
-  if (typeof window !== "undefined") {
-    document.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest(".relative")) {
-        openDropdown.value = null;
-      }
-    });
-  }
-});
 </script>

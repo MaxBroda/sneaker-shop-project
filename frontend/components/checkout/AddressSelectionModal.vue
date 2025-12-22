@@ -120,11 +120,11 @@
 
           <div class="mb-4">
             <label class="block text-sm font-semibold mb-2">Land *</label>
-            <input
+            <BaseDropdown
               v-model="newAddress.country"
-              type="text"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-light focus:border-transparent transition-all"
-              placeholder="Deutschland"
+              :options="countryOptions"
+              required
+              customClass="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-light focus:border-transparent transition-all"
             />
           </div>
 
@@ -160,6 +160,8 @@
 </template>
 
 <script setup lang="ts">
+import BaseDropdown from "~/components/ui/BaseDropdown.vue";
+
 interface Address {
   id?: number;
   street: string;
@@ -184,6 +186,12 @@ const emit = defineEmits<{
   close: [];
   select: [address: Address];
 }>();
+
+const countryOptions = [
+  { value: "Deutschland", label: "Deutschland" },
+  { value: "Österreich", label: "Österreich" },
+  { value: "Schweiz", label: "Schweiz" },
+];
 
 const selectedAddress = ref<Address | null>(props.currentAddress);
 const showNewAddressForm = ref(false);
@@ -229,13 +237,12 @@ async function createNewAddress() {
   }
 
   const config = useRuntimeConfig();
-  const { token } = useAuth();
-
+  const { getToken } = useAuth();
   try {
     const response = await $fetch<any>(`${config.public.apiUrl}/addresses.php`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
+        Authorization: `Bearer ${getToken() || localStorage.getItem('token')}`,
       },
       body: {
         ...newAddress,

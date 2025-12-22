@@ -1,153 +1,190 @@
-interface Address {
-  street: string;
-  house_number: string;
-  city: string;
-  postal_code: string;
-  country: string;
+/**
+ * Authentication Composable
+ * Handles user authentication state and operations
+ */
+
+import type { ApiResponse } from './useApi'
+
+export interface User {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  role: 'customer' | 'seller'
+  address?: Address | null
 }
 
-interface User {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: "customer" | "seller";
-  address?: Address;
+export interface Address {
+  id?: number
+  street: string
+  house_number: string
+  city: string
+  postal_code: string
+  country: string
+  is_default?: boolean
 }
 
-interface ApiResponse<T = unknown> {
-  success: boolean;
-  message?: string;
-  user?: User;
-  token?: string;
-  data?: T;
+interface LoginResponse {
+  user: User
+  token: string
 }
 
-export const useAuth = () => {
-  const user = useState<User | null>("user", () => {
-    if (typeof window !== "undefined") {
-      const savedUser = localStorage.getItem("user");
-      if (savedUser) {
-        try {
-          return JSON.parse(savedUser);
-        } catch {
-          return null;
-        }
-      }
+interface RegisterData {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: string
+  address: Omit<Address, 'id' | 'is_default'>
+}
+
+const TOKEN_KEY = 'token'
+const USER_KEY = 'user'
+
+export function useAuth() {
+  const user = useState<User | null>('auth-user', () => null)
+  const isAuthenticated = computed(() => user.value !== null)
+  const isSeller = computed(() => user.value?.role === 'seller')
+  const isCustomer = computed(() => user.value?.role === 'customer')
+
+  const api = useApi()
+
+  /**
+   * Login user with email and password
+   */
+  async function login(email: string, password: string): Promise<ApiResponse<LoginResponse>> {
+    const response = await api.post<LoginResponse>('/login.php', { email, password })
+
+    if (response.success && response.data) {
+      setAuthState(response.data.user, response.data.token)
     }
-    return null;
-  });
-  
-  const token = useState<string | null>("token", () => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("token");
-    }
-    return null;
-  });
-  
-  const config = useRuntimeConfig();
-  const API_URL = config.public.apiUrl;
 
-  async function login(email: string, password: string) {
+    return response
+  }
+
+  /**
+   * Register a new user
+   */
+  async function register(data: RegisterData): Promise<ApiResponse<LoginResponse>> {
+    const response = await api.post<LoginResponse>('/register.php', data)
+
+    if (response.success && response.data) {
+      setAuthState(response.data.user, response.data.token)
+    }
+
+    return response
+  }
+
+  /**
+   * Logout current user
+   */
+  async function logout(): Promise<void> {
     try {
-      console.log("Versuche Anmeldung:", email);
-
-      const res = await $fetch<ApiResponse>(`${API_URL}/login.php`, {
-        method: "POST",
-        body: { email, password },
-      });
-
-      console.log("Login Antwort:", res);
-
-      if (res.success && res.user && res.token) {
-        user.value = res.user;
-        token.value = res.token;
-        localStorage.setItem("token", res.token);
-        localStorage.setItem("user", JSON.stringify(res.user));
-        console.log("Anmeldung erfolgreich:", res.user);
-        return { success: true, message: res.message || "Login erfolgreich" };
-      }
-
-      console.warn("Anmeldung fehlgeschlagen:", res.message);
-      return { success: false, message: res.message || "Login fehlgeschlagen" };
-    } catch (err: unknown) {
-      console.error("Anmeldefehler:", err);
-      const error = err as { data?: { message?: string } };
-      return { success: false, message: error?.data?.message || "Netzwerk- oder Serverfehler" };
+      await api.post('/logout.php')
+    } finally {
+      // Always clear local state, even if server request fails
+      clearAuthState()
     }
   }
 
-  async function register(
-    email: string,
-    firstName: string,
-    lastName: string,
-    password: string,
-    passwordConfirmation: string,
-    role: string,
-    address?: Record<string, string>
-  ): Promise<ApiResponse> {
-    try {
-      const res = await $fetch<ApiResponse>(`${API_URL}/register.php`, {
-        method: "POST",
-        body: { email, firstName, lastName, password, passwordConfirmation, role, address },
-      });
-
-      console.log("Registrierung Antwort:", res);
-      if (res.success && res.user && res.token) {
-        loginUserDirect(res.user, res.token);
-      }
-
-      return res;
-    } catch (err) {
-      console.error("Registrierungsfehler:", err);
-
-      if (err && typeof err === "object" && "data" in err) {
-        const error = err as { data?: { message?: string } };
-        if (error.data?.message) {
-          return { success: false, message: error.data.message };
-        }
-      }
-
-      return { success: false, message: "Netzwerk- oder Serverfehler" };
+  /**
+   * Set authentication state in memory and localStorage
+   */
+  function setAuthState(userData: User, token: string): void {
+    user.value = userData
+    
+    if (import.meta.client) {
+      localStorage.setItem(TOKEN_KEY, token)
+      localStorage.setItem(USER_KEY, JSON.stringify(userData))
     }
   }
 
-  async function logout() {
+  /**
+   * Clear authentication state
+   */
+  function clearAuthState(): void {
+    user.value = null
+    
+    if (import.meta.client) {
+      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem(USER_KEY)
+    }
+  }
+
+  /**
+   * Restore auth state from localStorage (called on app init)
+   */
+  function restoreAuthState(): void {
+    if (!import.meta.client) return
+
     try {
-      if (!token.value) {
-        console.warn("Kein Token für Logout gefunden");
-        return;
+      const storedUser = localStorage.getItem(USER_KEY)
+      const storedToken = localStorage.getItem(TOKEN_KEY)
+
+      if (storedUser && storedToken) {
+        user.value = JSON.parse(storedUser)
       }
+    } catch {
+      // Invalid stored data, clear it
+      clearAuthState()
+    }
+  }
 
-      console.log("Abmeldung...");
+  /**
+   * Check if current token is still valid
+   */
+  async function validateToken(): Promise<boolean> {
+    if (!import.meta.client) return false
 
-      await $fetch(`${API_URL}/logout.php`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token.value}`,
-        },
-      });
+    const token = localStorage.getItem(TOKEN_KEY)
+    if (!token) return false
 
-      user.value = null;
-      token.value = null;
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    try {
+      const response = await api.get('/users.php', { user_id: user.value?.id })
+      return response.success
+    } catch {
+      return false
+    }
+  }
 
-      console.log("Erfolgreich abgemeldet");
+  /**
+   * Update stored user data
+   */
+  function updateUser(userData: Partial<User>): void {
+    if (user.value) {
+      user.value = { ...user.value, ...userData }
       
-      return { success: true };
-    } catch (err) {
-      console.error("Abmeldefehler:", err);
-      return { success: false };
+      if (import.meta.client) {
+        localStorage.setItem(USER_KEY, JSON.stringify(user.value))
+      }
     }
   }
 
-  function loginUserDirect(newUser: User, newToken: string) {
-    user.value = newUser;
-    token.value = newToken;
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("user", JSON.stringify(newUser));
+  /**
+   * Get the current auth token
+   */
+  function getToken(): string | null {
+    if (import.meta.client) {
+      return localStorage.getItem(TOKEN_KEY)
+    }
+    return null
   }
 
-  return { user, token, login, register, logout, loginUserDirect };
-};
+  return {
+    // State
+    user,
+    isAuthenticated,
+    isSeller,
+    isCustomer,
+    
+    // Actions
+    login,
+    register,
+    logout,
+    restoreAuthState,
+    validateToken,
+    updateUser,
+    getToken,
+    clearAuthState,
+  }
+}

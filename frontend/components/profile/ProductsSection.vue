@@ -110,15 +110,24 @@
 import ConfirmDialog from "~/components/modals/ConfirmDialog.vue";
 import EditProductModal from "~/components/modals/EditProductModal.vue";
 
-const { user, token } = useAuth();
-const config = useRuntimeConfig();
-const API_URL = config.public.apiUrl;
+interface Product {
+  id: number;
+  name: string;
+  description: string | null;
+  price: number;
+  image: string | null;
+  category: string | null;
+}
 
-const myProducts = ref<any[]>([]);
+const { user } = useAuth();
+const api = useApi();
+const config = useRuntimeConfig();
+
+const myProducts = ref<Product[]>([]);
 const showDeleteConfirm = ref(false);
 const productToDelete = ref<number | null>(null);
 const showEditModal = ref(false);
-const selectedProduct = ref<any>(null);
+const selectedProduct = ref<Product | null>(null);
 
 const emit = defineEmits<{
   success: [message: string];
@@ -129,14 +138,11 @@ async function fetchMyProducts() {
   if (!user.value) return;
 
   try {
-    const response = await $fetch<any>(
-      `${API_URL}/product.php?seller_id=${user.value.id}`
-    );
-    if (response.success) {
+    const response = await api.get<Product[]>("/product.php", { seller_id: user.value.id });
+    if (response.success && response.data) {
       myProducts.value = response.data;
     }
-  } catch (err) {
-    console.error("Fehler beim Laden der Produkte:", err);
+  } catch {
     emit("error", "Fehler beim Laden der Produkte");
   }
 }
@@ -145,7 +151,7 @@ onMounted(() => {
   fetchMyProducts();
 });
 
-async function deleteProduct(productId: number) {
+function deleteProduct(productId: number) {
   productToDelete.value = productId;
   showDeleteConfirm.value = true;
 }
@@ -160,27 +166,8 @@ async function confirmDelete() {
 
   showDeleteConfirm.value = false;
 
-  let authToken = token.value;
-  if (!authToken && typeof window !== "undefined") {
-    authToken = localStorage.getItem("token");
-  }
-
-  if (!authToken) {
-    emit("error", "Sie sind nicht angemeldet. Bitte melden Sie sich erneut an.");
-    navigateTo("/login");
-    return;
-  }
-
   try {
-    const response = await $fetch<any>(
-      `${API_URL}/product.php?id=${productToDelete.value}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    );
+    const response = await api.del(`/product.php?id=${productToDelete.value}`);
 
     if (response.success) {
       emit("success", "Produkt erfolgreich gelöscht!");
@@ -188,15 +175,14 @@ async function confirmDelete() {
     } else {
       emit("error", response.message || "Fehler beim Löschen");
     }
-  } catch (err: any) {
-    console.error("Fehler beim Löschen:", err);
-    emit("error", err?.data?.message || "Fehler beim Löschen des Produkts");
+  } catch {
+    emit("error", "Fehler beim Löschen des Produkts");
   } finally {
     productToDelete.value = null;
   }
 }
 
-function openEditModal(product: any) {
+function openEditModal(product: Product) {
   selectedProduct.value = product;
   showEditModal.value = true;
 }

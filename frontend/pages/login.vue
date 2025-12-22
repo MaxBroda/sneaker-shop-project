@@ -4,6 +4,7 @@
       <h2 class="text-2xl font-bold mb-6 text-center text-black">Login</h2>
 
       <AlertMessage type="error" :message="error" class="mb-6" />
+      <AlertMessage type="success" :message="successMessage" class="mb-6" />
 
       <form class="flex flex-col gap-4" @submit.prevent="loginUser" novalidate>
         <div>
@@ -52,10 +53,11 @@ import AlertMessage from '~/components/ui/AlertMessage.vue';
 const email = ref("");
 const password = ref("");
 const error = ref("");
+const successMessage = ref("");
 const emailError = ref("");
 const passwordError = ref("");
 const { login } = useAuth();
-const { mergeCart } = useCart();
+const { fetchCart } = useCart();
 
 function validateEmail() {
   if (!email.value) {
@@ -76,6 +78,9 @@ function validatePassword() {
 }
 
 async function loginUser() {
+  error.value = "";
+  successMessage.value = "";
+  
   validateEmail();
   validatePassword();
   
@@ -85,10 +90,17 @@ async function loginUser() {
   
   const res = await login(email.value, password.value);
   if (res.success) {
-    await mergeCart();
-    navigateTo("/");
+    successMessage.value = "Login erfolgreich!";
+    await fetchCart();
+    setTimeout(() => navigateTo("/"), 1000);
   } else {
-    error.value = res.message;
+    // Handle validation errors
+    if (res.errors) {
+      const errorMessages = Object.values(res.errors).join('. ');
+      error.value = errorMessages;
+    } else {
+      error.value = res.message || "Login fehlgeschlagen.";
+    }
   }
 }
 </script>

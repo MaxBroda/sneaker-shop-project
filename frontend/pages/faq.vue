@@ -12,7 +12,7 @@
             <Icon name="mdi:chevron-down" class="w-6 h-6 group-open:rotate-180 transition-transform" />
           </summary>
           <div class="px-6 pb-6 ">
-            Wir nutzen einen sicheren Payment-Service-Provider und akzeptieren alle gängigen Zahlungsmethoden: Kreditkarten (Visa, Mastercard, American Express), PayPal, Sofortüberweisung, SEPA-Lastschrift und weitere lokale Zahlungsarten. Alle Zahlungen werden verschlüsselt und sicher verarbeitet.
+            Wir nutzen einen sicheren Payment-Service-Provider und akzeptieren alle gängigen Zahlungsmethoden: Kreditkarten (Visa, Mastercard, Maestro), PayPal, Klarna. Alle Zahlungen werden verschlüsselt und sicher verarbeitet.
           </div>
         </details>
       </div>

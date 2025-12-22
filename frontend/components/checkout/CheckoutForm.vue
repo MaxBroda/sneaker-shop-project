@@ -147,7 +147,7 @@
 
             <!-- Guest user view -->
             <div v-if="isGuest">
-              <div class="grid md:grid-cols-2 gap-4 mb-6">
+              <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label class="block text-sm font-semibold mb-2">
                     Vorname *
@@ -174,7 +174,7 @@
                 </div>
               </div>
 
-              <div class="mb-6">
+              <div class="mb-4">
                 <label class="block text-sm font-semibold mb-2">
                   E-Mail *
                 </label>
@@ -187,8 +187,8 @@
                 />
               </div>
 
-              <div class="grid md:grid-cols-3 gap-4 mb-6">
-                <div class="md:col-span-2">
+              <div class="grid md:grid-cols-4 gap-4 mb-2">
+                <div class="md:col-span-3">
                   <label class="block text-sm font-semibold mb-2">
                     Straße *
                   </label>
@@ -214,7 +214,7 @@
                 </div>
               </div>
 
-              <div class="grid md:grid-cols-3 gap-4 mb-6">
+              <div class="grid md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label class="block text-sm font-semibold mb-2">
                     PLZ *
@@ -241,17 +241,15 @@
                 </div>
               </div>
 
-              <div class="mb-6">
+              <div class="mb-4">
                 <label class="block text-sm font-semibold mb-2"> Land * </label>
-                <select
+                <BaseDropdown
                   v-model="form.country"
+                  :options="countryOptions"
                   required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-light focus:border-transparent transition-all"
-                >
-                  <option value="Deutschland">Deutschland</option>
-                  <option value="Österreich">Österreich</option>
-                  <option value="Schweiz">Schweiz</option>
-                </select>
+                  placeholder="Land auswählen"
+                  customClass="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop-blue-light focus:border-transparent transition-all"
+                />
               </div>
             </div>
 
@@ -269,17 +267,20 @@
                 <label
                   v-for="method in paymentMethods"
                   :key="method.value"
-                  class="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:bg-shop-blue-light/5 hover:border-shop-blue-light cursor-pointer transition-all"
+                  class="flex items-center justify-between px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-shop-blue-light/5 hover:border-shop-blue-light cursor-pointer transition-all"
                 >
-                  <input
-                    type="radio"
-                    v-model="form.paymentMethod"
-                    :value="method.value"
-                    required
-                    class="w-5 h-5 accent-shop-blue-light"
-                  />
-                  <Icon :name="method.icon" class="w-6 h-6 text-gray-500" />
-                  <span class="font-medium">{{ method.label }}</span>
+                  <div class="flex items-center space-x-3">
+                    <input
+                      type="radio"
+                      v-model="form.paymentMethod"
+                      :value="method.value"
+                      required
+                      class="w-5 h-5 accent-shop-blue-light"
+                    />
+                    <Icon :name="method.icon" class="w-6 h-6 text-gray-500" />
+                    <span class="font-medium">{{ method.label }}</span>
+                  </div>
+                  <img :src="method.logo" :alt="method.label" class="w-12 h-12 object-contain" />
                 </label>
               </div>
             </div>
@@ -287,11 +288,12 @@
             <div class="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
               <input
                 type="checkbox"
+                id="agreeToTerms"
                 v-model="form.agreeToTerms"
                 required
-                class="w-5 h-5 mt-0.5 accent-shop-blue-light"
+                class="w-5 h-5 mt-0.5 accent-shop-blue-light cursor-pointer"
               />
-              <label class="text-sm">
+              <label for="agreeToTerms" class="text-sm cursor-pointer">
                 Ich akzeptiere die
                 <NuxtLink
                   to="/terms"
@@ -320,8 +322,8 @@
                 name="mdi:loading"
                 class="w-6 h-6 animate-spin"
               />
-              <Icon v-else name="mdi:lock-check" class="w-6 h-6" />
-              <span>{{
+              <Icon v-else name="mdi:lock-check" class="w-6 h-6 text-white" />
+              <span class="text-white">{{
                 isSubmitting
                   ? "Wird verarbeitet..."
                   : "Zahlungspflichtig bestellen"
@@ -347,7 +349,7 @@
               class="flex gap-3 pb-3 border-b border-gray-200"
             >
               <img
-                :src="`${config.public.uploadsUrl}/${item.image}`"
+                :src="item.image || ''"
                 :alt="item.name"
                 class="w-16 h-16 object-cover rounded-lg"
               />
@@ -411,9 +413,15 @@
 
 <script setup lang="ts">
 import AlertMessage from "~/components/ui/AlertMessage.vue";
+import BaseDropdown from "~/components/ui/BaseDropdown.vue";
 
 const config = useRuntimeConfig();
-const { cartItems, cartTotal, formatPrice } = useCart();
+const api = useApi();
+const { items: cartItems, total: cartTotal, clearCart } = useCart();
+
+function formatPrice(price: number): string {
+  return `${price.toFixed(2)} €`;
+}
 
 interface Props {
   user: any;
@@ -426,6 +434,12 @@ const emit = defineEmits<{
   "order-complete": [orderNumber: string];
 }>();
 
+const countryOptions = [
+  { value: "Deutschland", label: "Deutschland" },
+  { value: "Österreich", label: "Österreich" },
+  { value: "Schweiz", label: "Schweiz" },
+];
+
 const form = reactive({
   firstName: "",
   lastName: "",
@@ -434,8 +448,8 @@ const form = reactive({
   houseNumber: "",
   city: "",
   postalCode: "",
-  country: "Deutschland",
-  paymentMethod: "creditcard",
+  country: "",
+  paymentMethod: "paypal",
   agreeToTerms: false,
 });
 
@@ -444,15 +458,15 @@ const shippingForm = reactive({
   houseNumber: "",
   city: "",
   postalCode: "",
-  country: "Deutschland",
+  country: "",
 });
 
 const paymentMethods = [
-  { value: "creditcard", label: "Kreditkarte", icon: "mdi:credit-card" },
-  { value: "ideal", label: "iDEAL", icon: "mdi:bank" },
-  { value: "paypal", label: "PayPal", icon: "mdi:paypal" },
-  { value: "bancontact", label: "Bancontact", icon: "mdi:credit-card-outline" },
-  { value: "sofort", label: "SOFORT", icon: "mdi:bank-transfer" },
+  { value: "paypal", label: "PayPal", icon: "mdi:paypal", logo: "paypal-icon.png" },
+  { value: "klarna", label: "Klarna", icon: "mdi:credit-card-outline", logo: "klarna-icon.png" },
+  { value: "creditcard", label: "Kreditkarte", icon: "mdi:bank", logo: "credit-card-icon.svg" },
+  { value: "mastercard", label: "Mastercard", icon: "mdi:credit-card", logo: "mastercard-icon.png" },
+  { value: "maestro", label: "Maestro", icon: "mdi:credit-card", logo: "maestro-icon.png" },
 ];
 
 const errorMessage = ref("");
@@ -511,20 +525,8 @@ onMounted(() => {
 async function loadSavedAddresses() {
   if (!props.user) return;
 
-  const config = useRuntimeConfig();
-  const { token } = useAuth();
-
   try {
-    const response = await $fetch<any>(
-      `${config.public.apiUrl}/addresses.php`,
-      {
-        headers: {
-          Authorization: `Bearer ${
-            token.value || localStorage.getItem("token")
-          }`,
-        },
-      }
-    );
+    const response = await api.get<any[]>("/addresses.php");
 
     if (response.success && response.data) {
       savedAddresses.value = response.data;
@@ -539,8 +541,7 @@ async function loadSavedAddresses() {
         form.country = defaultAddr.country;
       }
     }
-  } catch (error: any) {
-    console.error("Failed to load addresses:", error);
+  } catch {
     savedAddresses.value = [];
   }
 }
@@ -556,8 +557,8 @@ function handleBillingSelect(address: any) {
   showBillingModal.value = false;
 
   const addressExists = savedAddresses.value.some((a) => a.id === address.id);
-  if (!addressExists) {
-    loadSavedAddresses();
+  if (!addressExists && address.id) {
+    savedAddresses.value.push(address);
   }
 }
 
@@ -572,8 +573,8 @@ function handleShippingSelect(address: any) {
   showShippingModal.value = false;
 
   const addressExists = savedAddresses.value.some((a) => a.id === address.id);
-  if (!addressExists) {
-    loadSavedAddresses();
+  if (!addressExists && address.id) {
+    savedAddresses.value.push(address);
   }
 }
 
@@ -595,8 +596,6 @@ function closeShippingModal() {
   showShippingModal.value = false;
 }
 
-function cancelAddressEdit() {}
-
 watch(useDifferentShipping, (newValue) => {
   if (!newValue) {
     shippingAddress.value = null;
@@ -609,14 +608,16 @@ watch(useDifferentShipping, (newValue) => {
 });
 
 async function handleSubmit() {
+  console.log('handleSubmit called');
+  console.log('cartItems:', cartItems.value);
+  console.log('form:', form);
+  console.log('total:', total.value);
+  
   errorMessage.value = "";
   isSubmitting.value = true;
 
-  const config = useRuntimeConfig();
-  const { token } = useAuth();
-  const { clearCart } = useCart();
-
   try {
+    console.log('Building billing address data...');
     const billingAddressData = {
       first_name: form.firstName,
       last_name: form.lastName,
@@ -627,6 +628,7 @@ async function handleSubmit() {
       postal_code: form.postalCode,
       country: form.country,
     };
+    console.log('billingAddressData:', billingAddressData);
 
     const shippingAddressData =
       useDifferentShipping.value && shippingAddress.value
@@ -638,6 +640,7 @@ async function handleSubmit() {
             country: shippingAddress.value.country,
           }
         : null;
+    console.log('shippingAddressData:', shippingAddressData);
 
     const orderItems = cartItems.value.map((item) => ({
       product_id: item.product_id,
@@ -645,67 +648,36 @@ async function handleSubmit() {
       size: item.size,
       price: item.price,
     }));
+    console.log('orderItems:', orderItems);
 
-    console.log("Submitting order:", {
+    // STEP 1: Create order in database
+    console.log('Creating order...');
+    const response = await api.post<{ order_number: string; order_id: number }>("/orders.php", {
       items: orderItems,
       total: total.value,
       billing_address: billingAddressData,
       shipping_address: shippingAddressData,
       payment_method: form.paymentMethod,
     });
+    console.log('Order response:', response);
 
-    // STEP 1: Create order in database
-    const response = await $fetch<any>(`${config.public.apiUrl}/orders.php`, {
-      method: "POST",
-      headers: token.value
-        ? {
-            Authorization: `Bearer ${
-              token.value || localStorage.getItem("token")
-            }`,
-          }
-        : {},
-      body: {
-        items: orderItems,
-        total: total.value,
-        billing_address: billingAddressData,
-        shipping_address: shippingAddressData,
-        payment_method: form.paymentMethod,
-      },
-    });
-
-    console.log("Order response:", response);
-    console.log("Response type:", typeof response);
-    console.log("Response.success:", response.success);
-    console.log("Response.data:", response.data);
-
-    if (response.success) {
+    if (response.success && response.data) {
       const orderNumber = response.data.order_number;
-      console.log("Order number extracted:", orderNumber);
 
       // STEP 2: Create Mollie payment
-      console.log("Creating Mollie payment...");
-      const paymentResponse = await $fetch<any>(
-        `${config.public.apiUrl}/mollie-payment.php`,
-        {
-          method: "POST",
-          body: {
-            amount: total.value,
-            description: `Bestellung #${orderNumber}`,
-            order_number: orderNumber,
-          },
-        }
-      );
+      console.log('Creating Mollie payment...');
+      const paymentResponse = await api.post<{ payment_id: string; checkout_url: string }>("/mollie-payment.php", {
+        amount: total.value,
+        description: `Bestellung #${orderNumber}`,
+        order_number: orderNumber,
+      });
+      console.log('Payment response:', paymentResponse);
 
-      console.log("Mollie payment response:", paymentResponse);
-
-      if (paymentResponse.success && paymentResponse.data.checkout_url) {
+      if (paymentResponse.success && paymentResponse.data?.checkout_url) {
         // STEP 3: Clear cart before redirecting to Mollie
-        console.log("Clearing cart...");
         await clearCart();
-        console.log("Cart cleared");
 
         // STEP 4: Redirect to Mollie checkout
-        console.log("Redirecting to Mollie checkout...");
         window.location.href = paymentResponse.data.checkout_url;
       } else {
         throw new Error(
@@ -715,13 +687,9 @@ async function handleSubmit() {
     } else {
       throw new Error(response.message || "Bestellung fehlgeschlagen");
     }
-  } catch (error: any) {
-    console.error("Order error:", error);
-    console.error("Error details:", error.data);
-    errorMessage.value =
-      error.data?.message ||
-      error.message ||
-      "Ein Fehler ist aufgetreten. Bitte versuche es erneut.";
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : "Ein Fehler ist aufgetreten";
+    errorMessage.value = errorMsg;
     isSubmitting.value = false;
   }
 }

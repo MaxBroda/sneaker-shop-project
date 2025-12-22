@@ -105,5 +105,5 @@
 </template>
 
 <script setup lang="ts">
-const { user } = useAuth();
+// Homepage component - static content
 </script>

@@ -17,6 +17,11 @@ export default defineNuxtConfig({
     },
   },
 
+  typescript: {
+    typeCheck: false,
+    strict: false
+  },
+
   modules: [
     "@nuxt/eslint",
     "@nuxt/fonts",

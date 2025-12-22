@@ -51,14 +51,13 @@ import MobileNav from "./MobileNav.vue";
 import AccountModal from "../modals/AccountModal.vue";
 import GuestModal from "../modals/GuestModal.vue";
 import CartModal from "../modals/CartModal.vue";
-import { useCart } from "~/composables/useCart";
 
 const { user, logout } = useAuth();
-const { clearCart, fetchCart } = useCart();
+const { clearLocalCart, fetchCart } = useCart();
 
 async function handleLogout() {
   await logout();
-  clearCart();
+  clearLocalCart();
   await fetchCart();
   navigateTo('/');
 }

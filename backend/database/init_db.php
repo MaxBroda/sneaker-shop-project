@@ -104,10 +104,15 @@ try {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             token TEXT NOT NULL,
+            expires_at TEXT,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     ");
+    
+    // Create index on token for faster lookups
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_user_tokens_token ON user_tokens(token);");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_user_tokens_expires ON user_tokens(expires_at);");
 
     echo 'Datenbank erfolgreich initialisiert (Users, Addresses, Tokens, etc.)' . PHP_EOL;
 } catch (Exception $e) {

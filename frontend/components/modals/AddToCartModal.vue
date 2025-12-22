@@ -45,7 +45,7 @@
                 <p class="text-gray-500 text-sm mb-3 line-clamp-2">
                   {{ product.description || 'Keine Beschreibung verfügbar' }}
                 </p>
-                <div class="flex items-baseline gap-2">
+                <div class="flex flex-col md:flex-row items-baseline gap-2">
                   <span class="text-3xl font-bold text-shop-blue-light">{{ product.price }} €</span>
                   <span class="text-gray-500 text-sm">inkl. MwSt.</span>
                 </div>
@@ -81,7 +81,7 @@
               <label class="block text-sm font-bold mb-3 uppercase tracking-wide ">
                 Anzahl
               </label>
-              <div class="flex items-center gap-3">
+              <div class="flex justify-center md:justify-start items-center gap-3">
                 <button
                   @click="decreaseQuantity"
                   :disabled="quantity <= 1"
@@ -89,7 +89,7 @@
                 >
                   <Icon name="mdi:minus" class="w-5 h-5" />
                 </button>
-                <div class="flex-1 max-w-[120px]">
+                <div class="flex-1 w-2/3 md:max-w-[120px]">
                   <input
                     v-model.number="quantity"
                     type="number"
@@ -118,7 +118,7 @@
                 Abbrechen
               </button>
               <button
-                @click="handleAddToCart"
+                @click="handleAddItem"
                 :disabled="isAdding || !selectedSize"
                 :class="[
                   'flex-1 py-3.5 px-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2',
@@ -128,7 +128,7 @@
                 ]"
               >
                 <Icon v-if="isAdding" name="mdi:loading" class="w-5 h-5 animate-spin" />
-                <Icon v-else name="mdi:cart-plus" class="w-5 h-5" />
+                <Icon v-else name="mdi:cart-plus" :class="['w-5 h-5', selectedSize && !isAdding ? 'text-white' : 'text-gray-500']" />
                 {{ isAdding ? 'Wird hinzugefügt...' : 'In den Warenkorb' }}
               </button>
             </div>
@@ -165,7 +165,7 @@ const emit = defineEmits<{
 }>();
 
 const config = useRuntimeConfig();
-const { addToCart } = useCart();
+const { addItem } = useCart();
 
 const selectedSize = ref<string>('');
 const quantity = ref<number>(1);
@@ -208,7 +208,7 @@ function closeModal() {
   emit('close');
 }
 
-async function handleAddToCart() {
+async function handleAddItem() {
   if (!props.product) return;
   
   if (!selectedSize.value) {
@@ -221,7 +221,7 @@ async function handleAddToCart() {
   message.value = '';
   
   try {
-    const result = await addToCart(props.product.id, selectedSize.value, quantity.value);
+    const result = await addItem(props.product.id, selectedSize.value, quantity.value);
     
     if (result.success) {
       messageType.value = 'success';
@@ -240,7 +240,7 @@ async function handleAddToCart() {
     messageType.value = 'error';
     message.value = 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.';
   } finally {
-    isAdding.value = false;
+    setTimeout(() => isAdding.value = false, 1000);
   }
 }
 </script>

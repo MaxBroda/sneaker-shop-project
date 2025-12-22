@@ -1,92 +1,60 @@
 <?php
+/**
+ * Seller Orders API Endpoint
+ * Handles order management for sellers
+ */
 
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/auth.php';
+require_once __DIR__ . '/../utils/response.php';
+require_once __DIR__ . '/../utils/validation.php';
 require_once __DIR__ . '/../models/Order.php';
+
+// Handle OPTIONS preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}   
 
 $orderModel = new Order($pdo);
 $method = $_SERVER['REQUEST_METHOD'];
 
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-if (!$authHeader && function_exists('getallheaders')) {
-    $headers = getallheaders();
-    $authHeader = $headers['authorization'] ?? '';
-}
+try {
+    // Require seller authentication
+    $user = Auth::requireSeller();
 
-$token = '';
-if (preg_match('/Bearer\s+(.+)/', $authHeader, $matches)) {
-    $token = $matches[1];
-}
-
-$user = getUserFromToken($token, $pdo);
-if (!$user) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Nicht autorisiert']);
-    exit;
-}
-
-if ($user['role'] !== 'seller') {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Nur für Verkäufer']);
-    exit;
-}
-
-if ($method === 'GET') {
-    try {
-        error_log("[SELLER-ORDERS] Fetching orders for seller ID: " . $user['id']);
+    // GET - Retrieve seller's orders
+    if ($method === 'GET') {
         $orders = $orderModel->getSellerOrders($user['id']);
-        error_log("[SELLER-ORDERS] Orders fetched: " . count($orders));
-
-        echo json_encode([
-            'success' => true,
-            'data' => $orders
-        ]);
-    } catch (Exception $e) {
-        error_log("[SELLER-ORDERS] Exception: " . $e->getMessage());
-        error_log("[SELLER-ORDERS] Stack trace: " . $e->getTraceAsString());
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'message' => $e->getMessage()
-        ]);
+        ApiResponse::success($orders);
     }
-    exit;
+
+    // PUT - Update order status
+    if ($method === 'PUT') {
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+
+        $validator = Validator::make($data)
+            ->required('order_id', 'Bestellungs-ID ist erforderlich')
+            ->required('status', 'Status ist erforderlich')
+            ->integer('order_id')
+            ->inArray('status', ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], 'Ungültiger Status');
+
+        if ($validator->fails()) {
+            ApiResponse::validationError($validator->getErrors());
+        }
+
+        $orderId = $validator->getInt('order_id');
+        $status = $validator->getValue('status');
+
+        $orderModel->updateStatus($orderId, $status, $user['id']);
+
+        ApiResponse::success(null, 'Status aktualisiert');
+    }
+
+    ApiResponse::methodNotAllowed();
+
+} catch (Exception $e) {
+    ApiResponse::serverError('Ein Fehler ist aufgetreten');
 }
-
-if ($method === 'PUT') {
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    if (!isset($data['order_id']) || !isset($data['status'])) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Fehlende Daten']);
-        exit;
-    }
-
-    $validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-    if (!in_array($data['status'], $validStatuses)) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Ungültiger Status']);
-        exit;
-    }
-
-    try {
-        $orderModel->updateStatus($data['order_id'], $data['status'], $user['id']);
-
-        echo json_encode([
-            'success' => true,
-            'message' => 'Status aktualisiert'
-        ]);
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'message' => $e->getMessage()
-        ]);
-    }
-    exit;
-}
-
-http_response_code(405);
-echo json_encode(['success' => false, 'message' => 'Methode nicht erlaubt']);

@@ -79,8 +79,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
 
-const { user, logout } = useAuth();
-const { clearCart, fetchCart } = useCart();
+const { user } = useAuth();
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 
@@ -90,14 +89,6 @@ function toggleDropdown() {
 
 function closeDropdown() {
   isOpen.value = false;
-}
-
-async function handleLogout() {
-  await logout();
-  clearCart();
-  await fetchCart();
-  closeDropdown();
-  navigateTo('/');
 }
 
 function getRoleLabel(role?: string): string {

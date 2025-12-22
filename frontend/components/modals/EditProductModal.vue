@@ -21,7 +21,7 @@
         <AlertMessage type="error" :message="errorMessage" class="mb-6" />
         <AlertMessage type="success" :message="successMessage" class="mb-6" />
 
-        <form @submit.prevent="updateProduct" class="space-y-6">
+        <form @submit.prevent="handleUpdate" class="space-y-6">
           <div>
             <label class="block text-sm font-semibold mb-2 text-shop-blue-dark">
               Produktname *
@@ -229,8 +229,7 @@
 import AlertMessage from '~/components/ui/AlertMessage.vue';
 
 const config = useRuntimeConfig();
-const API_URL = config.public.apiUrl;
-const { token } = useAuth();
+const api = useApi();
 
 interface Product {
   id: number;
@@ -335,33 +334,13 @@ async function uploadImage(file: File) {
   
   img.onload = async () => {
     imagePreview.value = objectUrl;
-    
-    let authToken = token.value;
-    if (!authToken && typeof window !== "undefined") {
-      authToken = localStorage.getItem("token");
-    }
 
-    const formData = new FormData();
-    formData.append('image', file);
+    const response = await api.upload<{ filename: string }>('/upload.php', file);
 
-    try {
-      const response = await $fetch<any>(`${API_URL}/upload.php`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: formData,
-      });
-
-      if (response.success) {
-        uploadedImageFilename.value = response.data.filename;
-      } else {
-        uploadError.value = response.message || 'Fehler beim Hochladen';
-        imagePreview.value = null;
-      }
-    } catch (err: any) {
-      console.error('Upload error:', err);
-      uploadError.value = err?.data?.message || 'Fehler beim Hochladen des Bildes';
+    if (response.success && response.data) {
+      uploadedImageFilename.value = response.data.filename;
+    } else {
+      uploadError.value = response.message || 'Fehler beim Hochladen';
       imagePreview.value = null;
     }
   };
@@ -374,26 +353,30 @@ async function uploadImage(file: File) {
   img.src = objectUrl;
 }
 
-async function updateProduct() {
+function scrollToTop() {
+  document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function handleUpdate() {
   errorMessage.value = "";
   successMessage.value = "";
 
   if (!form.name || !form.price) {
     errorMessage.value = "Name und Preis sind erforderlich";
-    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
     return;
   }
 
   if (!uploadedImageFilename.value) {
     errorMessage.value = "Bitte laden Sie ein Produktbild hoch";
-    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
     return;
   }
 
   const priceRegex = /^\d+(\.\d{1,2})?$/;
   if (!priceRegex.test(form.price)) {
     errorMessage.value = "Preis muss eine gültige Zahl mit maximal 2 Dezimalstellen sein";
-    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
     return;
   }
 
@@ -401,62 +384,44 @@ async function updateProduct() {
 
   if (priceValue <= 0) {
     errorMessage.value = "Der Preis muss größer als 0 sein";
-    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
     return;
   }
 
   if (priceValue > 999999.99) {
     errorMessage.value = "Der Preis ist zu hoch (Maximum: 999.999,99 €)";
-    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
-  let authToken = token.value;
-  if (!authToken && typeof window !== "undefined") {
-    authToken = localStorage.getItem("token");
-  }
-
-  if (!authToken) {
-    errorMessage.value = "Sie sind nicht angemeldet. Bitte melden Sie sich erneut an.";
+    scrollToTop();
     return;
   }
 
   isLoading.value = true;
 
   try {
-    const response = await $fetch<any>(`${API_URL}/product.php`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-      body: {
-        id: props.product?.id,
-        name: form.name,
-        description: form.description,
-        price: priceValue,
-        category: form.categories.join(", "),
-        image: uploadedImageFilename.value,
-        technical_specs: form.technicalSpecs,
-        tag_icon: form.tagIcon,
-        tag_text: form.tagText,
-      },
+    const response = await api.put('/api/product.php', {
+      id: props.product?.id,
+      name: form.name,
+      description: form.description,
+      price: priceValue,
+      category: form.categories.join(", "),
+      image: uploadedImageFilename.value,
+      technical_specs: form.technicalSpecs,
+      tag_icon: form.tagIcon,
+      tag_text: form.tagText,
     });
 
     if (response.success) {
       successMessage.value = "Produkt erfolgreich aktualisiert!";
-      document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
       setTimeout(() => {
         emit('updated');
       }, 1000);
     } else {
       errorMessage.value = response.message || "Fehler beim Aktualisieren";
-      document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     }
-  } catch (err: any) {
-    console.error("Fehler:", err);
-    errorMessage.value = err?.data?.message || "Netzwerk- oder Serverfehler";
-    document.querySelector('.max-h-\\[90vh\\]')?.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch {
+    errorMessage.value = "Netzwerk- oder Serverfehler";
+    scrollToTop();
   } finally {
     isLoading.value = false;
   }

@@ -136,12 +136,12 @@
           />
         </div>
 
-        <input
+        <BaseDropdown
           v-model="address.country"
-          type="text"
-          placeholder="Land"
-          class="border rounded-lg p-2"
+          :options="countryOptions"
           required
+          placeholder="Land auswählen"
+          customClass="border rounded-lg p-2"
         />
 
         <button
@@ -158,9 +158,10 @@
 <script setup lang="ts">
 import { useCart } from "~/composables/useCart";
 import AlertMessage from '~/components/ui/AlertMessage.vue';
+import BaseDropdown from '~/components/ui/BaseDropdown.vue';
 
 const { register } = useAuth();
-const { mergeCart } = useCart();
+const { fetchCart } = useCart();
 
 const email = ref("");
 const firstName = ref("");
@@ -170,6 +171,12 @@ const passwordConfirmation = ref("");
 const role = ref("customer");
 const error = ref("");
 const successMessage = ref("");
+
+const countryOptions = [
+  { value: "Deutschland", label: "Deutschland" },
+  { value: "Österreich", label: "Österreich" },
+  { value: "Schweiz", label: "Schweiz" },
+];
 
 const address = reactive({
   street: "",
@@ -246,26 +253,33 @@ async function registerUser() {
     return;
   }
 
-  const res = await register(
-    email.value,
-    firstName.value,
-    lastName.value,
-    password.value,
-    passwordConfirmation.value,
-    role.value,
-    address
-  );
+  const userData = {
+    email: email.value,
+    firstName: firstName.value,
+    lastName: lastName.value,
+    password: password.value,
+    role: role.value,
+    address: address
+  };
+  
+  const res = await register(userData);
 
   if (res.success) {
-    successMessage.value = res.message || "Registrierung erfolgreich!";
-    await mergeCart();
+    successMessage.value = "Registrierung erfolgreich!";
+    await fetchCart();
     
     const route = useRoute();
     const redirectPath = route.query.redirect as string || "/";
     
     setTimeout(() => navigateTo(redirectPath), 1500);
   } else {
-    error.value = res.message || "Registrierung fehlgeschlagen.";
+    // Handle validation errors
+    if (res.errors) {
+      const errorMessages = Object.values(res.errors).join('. ');
+      error.value = errorMessages;
+    } else {
+      error.value = res.message || "Registrierung fehlgeschlagen.";
+    }
   }
 }
 </script>

@@ -31,7 +31,7 @@
             </p>
             <p
               v-if="order.payment_status === 'open'"
-              class="text-sm text-orange-600 font-medium mt-1"
+              class="inline-block text-sm text-orange-600 font-medium mt-1 bg-orange-100 px-2 py-1 rounded-full"
             >
               ⚠️ Zahlung offen
             </p>
@@ -165,8 +165,7 @@ interface Order {
   items: OrderItem[];
 }
 
-const config = useRuntimeConfig();
-const { token } = useAuth();
+const api = useApi();
 
 const orders = ref<Order[]>([]);
 const isLoading = ref(true);
@@ -177,42 +176,16 @@ async function fetchOrders() {
     isLoading.value = true;
     error.value = "";
 
-    const authToken = token.value || localStorage.getItem("token");
-    console.log("[OrdersSection] Token from useAuth:", token.value);
-    console.log(
-      "[OrdersSection] Token from localStorage:",
-      localStorage.getItem("token")
-    );
-    console.log("[OrdersSection] Using token:", authToken);
+    const response = await api.get<Order[]>("/orders.php");
 
-    const response = await $fetch<any>(`${config.public.apiUrl}/orders.php`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-
-    if (response.success) {
+    if (response.success && response.data) {
       orders.value = response.data;
-      console.log("[OrdersSection] Orders received:", response.data);
-      if (response.data.length > 0) {
-        console.log("[OrdersSection] First order:", response.data[0]);
-        console.log(
-          "[OrdersSection] First order payment_status:",
-          response.data[0].payment_status
-        );
-        console.log(
-          "[OrdersSection] First order payment_status type:",
-          typeof response.data[0].payment_status
-        );
-      }
     } else {
       throw new Error(response.message || "Fehler beim Laden der Bestellungen");
     }
-  } catch (err: any) {
-    console.error("Error fetching orders:", err);
-    error.value =
-      err.data?.message || err.message || "Fehler beim Laden der Bestellungen";
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Fehler beim Laden der Bestellungen";
+    error.value = errorMessage;
   } finally {
     isLoading.value = false;
   }
@@ -257,11 +230,11 @@ function getStatusClass(status: string): string {
 
 function getPaymentMethodText(method: string): string {
   const methodMap: Record<string, string> = {
-    "credit-card": "Kreditkarte",
-    creditcard: "Kreditkarte",
     paypal: "PayPal",
-    "bank-transfer": "Banküberweisung",
-    "cash-on-delivery": "Nachnahme",
+    klarna: "Klarna",
+    creditcard: "Kreditkarte",
+    mastercard: "Mastercard",
+    maestro: "Maestro",
   };
   return methodMap[method] || method;
 }

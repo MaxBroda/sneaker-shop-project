@@ -4,7 +4,7 @@
       <div
         class="flex items-center justify-between py-4 px-6 text-shop-blue-light"
       >
-        <NuxtLink to="/" class="text-lg font-bold text-shop-blue-light">SneakerShop</NuxtLink>
+        <NuxtLink to="/" class="text-2xl font-bold text-shop-blue-light">SneakerShop</NuxtLink>
         <div class="flex items-center gap-3 text-white">
           <ClientOnly>
             <CartModal v-if="user && user.role === 'customer'" />
@@ -83,7 +83,7 @@ import CartModal from "../modals/CartModal.vue";
 import { ref, onMounted, onUnmounted } from "vue";
 
 const { user, logout } = useAuth();
-const { clearCart, fetchCart } = useCart();
+const { clearLocalCart, fetchCart } = useCart();
 
 const isOpen = ref(false);
 const mobileNavRef = ref<HTMLElement | null>(null);
@@ -115,7 +115,7 @@ onUnmounted(() => {
 
 async function handleLogout() {
   await logout();
-  clearCart();
+  clearLocalCart();
   await fetchCart();
   closeMenu();
   navigateTo('/');

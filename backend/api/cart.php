@@ -1,42 +1,50 @@
 <?php
+/**
+ * Cart API Endpoint
+ * Handles shopping cart operations
+ */
 
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/auth.php';
+require_once __DIR__ . '/../utils/response.php';
+require_once __DIR__ . '/../utils/validation.php';
 require_once __DIR__ . '/../models/Cart.php';
+
+// Handle OPTIONS preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 session_start();
 
+// Generate or get session ID for guest carts
 if (!isset($_SESSION['cart_session_id'])) {
     $_SESSION['cart_session_id'] = bin2hex(random_bytes(16));
 }
 $sessionId = $_SESSION['cart_session_id'];
 
+// Check for authenticated user
 $userId = null;
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-if (!$authHeader && function_exists('getallheaders')) {
-    $headers = array_change_key_case(getallheaders(), CASE_LOWER);
-    $authHeader = $headers['authorization'] ?? '';
-}
+$user = Auth::user();
 
-if ($authHeader) {
-    $token = str_replace('Bearer ', '', $authHeader);
-    $user = getUserFromToken($token, $pdo);
-    if ($user) {
-        $userId = $user['id'];
+if ($user) {
+    $userId = $user['id'];
 
-        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM cart_items WHERE session_id = ? AND user_id IS NULL");
-        $stmt->execute([$sessionId]);
-        $guestCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    // Merge guest cart into user cart if needed
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM cart_items WHERE session_id = ? AND user_id IS NULL");
+    $stmt->execute([$sessionId]);
+    $guestCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-        if ($guestCount > 0) {
-            $cart = new Cart($pdo);
-            $cart->mergeCarts($userId, $sessionId);
-        }
-
-        $sessionId = null;
+    if ($guestCount > 0) {
+        $cart = new Cart($pdo);
+        $cart->mergeCarts($userId, $sessionId);
     }
+
+    // User carts don't use session_id
+    $sessionId = null;
 }
 
 $cart = new Cart($pdo);
@@ -46,106 +54,109 @@ try {
     switch ($method) {
         case 'GET':
             $items = $cart->getCartItems($userId, $sessionId);
-            echo json_encode([
-                'success' => true,
+            ApiResponse::success([
                 'items' => $items,
                 'count' => array_sum(array_column($items, 'quantity'))
             ]);
             break;
 
         case 'POST':
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
 
-            if (!isset($data['product_id']) || !isset($data['size'])) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Produkt-ID und Größe erforderlich']);
-                break;
+            $validator = Validator::make($data)
+                ->required('product_id', 'Produkt-ID ist erforderlich')
+                ->required('size', 'Größe ist erforderlich')
+                ->integer('product_id');
+
+            if ($validator->fails()) {
+                ApiResponse::validationError($validator->getErrors());
             }
 
-            $quantity = $data['quantity'] ?? 1;
-            $result = $cart->addItem($userId, $sessionId, $data['product_id'], $quantity, $data['size']);
+            $productId = $validator->getInt('product_id');
+            $size = $validator->getValue('size');
+            $quantity = $validator->getInt('quantity') ?: 1;
+
+            if ($quantity < 1) {
+                $quantity = 1;
+            }
+
+            $result = $cart->addItem($userId, $sessionId, $productId, $quantity, $size);
 
             if ($result['success']) {
                 $items = $cart->getCartItems($userId, $sessionId);
-                echo json_encode([
-                    'success' => true,
-                    'message' => $result['message'],
+                ApiResponse::success([
                     'items' => $items,
                     'count' => array_sum(array_column($items, 'quantity'))
-                ]);
+                ], $result['message']);
             } else {
-                http_response_code(400);
-                echo json_encode($result);
+                ApiResponse::error($result['message']);
             }
             break;
 
         case 'PUT':
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
 
-            if (!isset($data['cart_item_id']) || !isset($data['quantity'])) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Warenkorb-Item-ID und Menge erforderlich']);
-                break;
+            $validator = Validator::make($data)
+                ->required('cart_item_id', 'Warenkorb-Item-ID ist erforderlich')
+                ->required('quantity', 'Menge ist erforderlich')
+                ->integer('cart_item_id')
+                ->integer('quantity');
+
+            if ($validator->fails()) {
+                ApiResponse::validationError($validator->getErrors());
             }
 
-            $result = $cart->updateQuantity($data['cart_item_id'], $userId, $sessionId, $data['quantity']);
+            $cartItemId = $validator->getInt('cart_item_id');
+            $quantity = $validator->getInt('quantity');
+
+            $result = $cart->updateQuantity($cartItemId, $userId, $sessionId, $quantity);
 
             if ($result['success']) {
                 $items = $cart->getCartItems($userId, $sessionId);
-                echo json_encode([
-                    'success' => true,
-                    'message' => $result['message'],
+                ApiResponse::success([
                     'items' => $items,
                     'count' => array_sum(array_column($items, 'quantity'))
-                ]);
+                ], $result['message']);
             } else {
-                http_response_code(400);
-                echo json_encode($result);
+                ApiResponse::error($result['message']);
             }
             break;
 
         case 'DELETE':
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
 
+            // If no cart_item_id, clear entire cart
             if (!isset($data['cart_item_id'])) {
                 $result = $cart->clearCart($userId, $sessionId);
 
                 if ($result['success']) {
-                    echo json_encode([
-                        'success' => true,
-                        'message' => 'Warenkorb geleert',
+                    ApiResponse::success([
                         'items' => [],
                         'count' => 0
-                    ]);
+                    ], 'Warenkorb geleert');
                 } else {
-                    http_response_code(400);
-                    echo json_encode($result);
+                    ApiResponse::error($result['message']);
                 }
                 break;
             }
 
-            $result = $cart->removeItem($data['cart_item_id'], $userId, $sessionId);
+            $cartItemId = intval($data['cart_item_id']);
+            $result = $cart->removeItem($cartItemId, $userId, $sessionId);
 
             if ($result['success']) {
                 $items = $cart->getCartItems($userId, $sessionId);
-                echo json_encode([
-                    'success' => true,
-                    'message' => $result['message'],
+                ApiResponse::success([
                     'items' => $items,
                     'count' => array_sum(array_column($items, 'quantity'))
-                ]);
+                ], $result['message']);
             } else {
-                http_response_code(400);
-                echo json_encode($result);
+                ApiResponse::error($result['message']);
             }
             break;
 
         default:
-            http_response_code(405);
-            echo json_encode(['success' => false, 'message' => 'Methode nicht erlaubt']);
-            break;
+            ApiResponse::methodNotAllowed();
     }
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Serverfehler: ' . $e->getMessage()]);
+    ApiResponse::serverError('Ein Fehler ist aufgetreten');
 }

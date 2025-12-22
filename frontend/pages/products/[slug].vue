@@ -251,7 +251,7 @@
                     <Icon name="mdi:credit-card" class="w-5 h-5 text-shop-blue-light" />
                     Zahlung
                   </h3>
-                  <p class=" text-sm pl-7">PayPal • Kreditkarte • Klarna • SEPA-Lastschrift</p>
+                  <p class=" text-sm pl-7">PayPal • Kreditkarte • Klarna • Mastercard • Maestro</p>
                 </div>
               </div>
             </div>
@@ -269,7 +269,7 @@ const route = useRoute();
 const config = useRuntimeConfig();
 const API_URL = config.public.apiUrl;
 
-const { addToCart, fetchCart } = useCart();
+const { addItem, fetchCart } = useCart();
 
 interface Product {
   id: number;
@@ -333,7 +333,7 @@ async function handleAddToCart() {
   addToCartMessage.value = "";
 
   try {
-    const result = await addToCart(product.value.id, selectedSize.value, 1);
+    const result = await addItem(product.value.id, selectedSize.value, 1);
     
     if (result.success) {
       addToCartSuccess.value = true;

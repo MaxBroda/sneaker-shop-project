@@ -17,7 +17,7 @@
         <div class="px-4 pb-4">
           <NuxtLink
             to="/login"
-            class="block w-full bg-shop-blue-dark text-white text-center py-2 rounded-lg hover:bg-shop-blue-light transition-all"
+            class="block w-full bg-signal-red text-white text-center py-2 rounded-lg hover:opacity-90 transition-all"
             @click="closeDropdown"
           >
             Login
@@ -27,7 +27,7 @@
           <p class="text-sm text-center mb-3 text-gray-500">Kein Konto?</p>
           <NuxtLink
             to="/register"
-            class="block w-full bg-signal-red text-white text-center py-2 rounded-lg hover:opacity-90 transition-all"
+            class="block w-full bg-shop-blue-dark text-white text-center py-2 rounded-lg hover:bg-shop-blue-light transition-all"
             @click="closeDropdown"
           >
             Registrieren

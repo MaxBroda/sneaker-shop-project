@@ -36,7 +36,7 @@
           >
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
               <img
-                :src="`${config.public.uploadsUrl}/${item.image}`"
+                :src="item.image || `${config.public.uploadsUrl}/placeholder.jpg`"
                 :alt="item.name"
                 class="w-full sm:w-32 h-32 object-cover rounded-lg border border-shop-blue-dark"
               />
@@ -152,15 +152,13 @@ import { useCart } from "~/composables/useCart";
 const config = useRuntimeConfig();
 
 const { 
-  cartItems, 
-  cartItemCount, 
-  cartTotal,
+  items: cartItems, 
+  itemCount: cartItemCount, 
+  total: cartTotal,
   isLoading,
   fetchCart, 
-  increaseQuantity: increaseQty,
-  decreaseQuantity: decreaseQty,
-  removeFromCart,
-  formatPrice
+  updateQuantity,
+  removeItem,
 } = useCart();
 
 const showDeleteConfirm = ref(false);
@@ -182,16 +180,26 @@ const totalPrice = computed(() => {
   return subtotal.value + shippingCost.value - discount.value;
 });
 
+function formatPrice(price: number): string {
+  return `${price.toFixed(2)} €`;
+}
+
 async function increaseQuantity(itemId: number) {
-  await increaseQty(itemId);
+  const item = cartItems.value.find(i => i.id === itemId);
+  if (item) {
+    await updateQuantity(itemId, item.quantity + 1);
+  }
 }
 
 async function decreaseQuantity(itemId: number) {
-  await decreaseQty(itemId);
+  const item = cartItems.value.find(i => i.id === itemId);
+  if (item && item.quantity > 1) {
+    await updateQuantity(itemId, item.quantity - 1);
+  }
 }
 
-async function removeItem(itemId: number) {
-  await removeFromCart(itemId);
+async function removeCartItem(itemId: number) {
+  await removeItem(itemId);
 }
 
 function showRemoveDialog(itemId: number) {
@@ -201,7 +209,7 @@ function showRemoveDialog(itemId: number) {
 
 async function confirmRemove() {
   if (itemToDelete.value !== null) {
-    await removeItem(itemToDelete.value);
+    await removeCartItem(itemToDelete.value);
     itemToDelete.value = null;
   }
   showDeleteConfirm.value = false;

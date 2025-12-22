@@ -1,20 +1,26 @@
-export default defineNuxtPlugin(() => {
-  const { user, token } = useAuth();
+/**
+ * Auth Client Plugin
+ * Restores authentication state on client-side initialization
+ */
 
-  if (typeof window !== 'undefined') {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
+export default defineNuxtPlugin(async () => {
+  const { restoreAuthState, validateToken, clearAuthState, user } = useAuth()
+  const { fetchCart, clearLocalCart } = useCart()
 
-    if (savedToken && savedUser) {
-      try {
-        token.value = savedToken;
-        user.value = JSON.parse(savedUser);
-        console.log('Auth state restored from localStorage');
-      } catch (error) {
-        console.error('Failed to restore auth state:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }
+  // Restore auth state from localStorage
+  restoreAuthState()
+
+  // If user is logged in, validate the token
+  if (user.value) {
+    const isValid = await validateToken()
+    
+    if (!isValid) {
+      // Token is invalid or expired, clear state
+      clearAuthState()
+      clearLocalCart()
+    } else {
+      // Token is valid, fetch cart
+      await fetchCart()
     }
   }
-});
+})

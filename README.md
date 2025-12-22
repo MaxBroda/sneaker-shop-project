@@ -73,6 +73,10 @@ cd sneaker-shop-project
 ### 2. Backend Setup (Docker)
 
 ```bash
+# Backend Umgebungsvariablen konfigurieren
+cp backend/.env.example backend/.env
+# .env Datei mit eigenen Werten anpassen (z.B. MOLLIE_API_KEY)
+
 # Docker Container starten
 docker-compose up -d
 
@@ -81,6 +85,9 @@ docker ps
 
 # Datenbank initialisieren
 docker exec sneaker-shop-backend php /var/www/html/database/init_db.php
+
+# Optional: Token-Expiry Migration ausführen (für bestehende Datenbanken)
+docker exec sneaker-shop-backend php /var/www/html/database/add_token_expiry.php
 ```
 
 Das Backend läuft nun auf: **http://localhost:8080**
@@ -243,8 +250,11 @@ Das Projekt verwendet ein konsistentes Farbschema:
 
 - Passwörter werden mit `password_hash()` (bcrypt) gehashed
 - SQL-Injection-Schutz durch PDO Prepared Statements
-- Token-basierte Authentifizierung
+- Token-basierte Authentifizierung mit Ablaufzeit
+- Token werden als SHA-256 Hash in der Datenbank gespeichert
 - CORS richtig konfiguriert
+- Umgebungsvariablen für Secrets (keine hardcodierten API-Keys)
+- Standardisierte API-Fehlerbehandlung mit korrekten HTTP-Statuscodes
 
 ## Troubleshooting
 
@@ -292,7 +302,28 @@ npm install
 - `id`, `order_id`, `product_id`, `quantity`, `price`
 
 ### user_tokens
-- `id`, `user_id`, `token`, `created_at`
+- `id`, `user_id`, `token`, `expires_at`, `created_at`
+
+## Umgebungsvariablen
+
+### Backend (.env)
+
+```env
+# Mollie Payment Gateway
+MOLLIE_API_KEY=test_your_mollie_api_key_here
+
+# Application URLs
+APP_URL=http://localhost:8080
+FRONTEND_URL=http://localhost:3000
+
+# Token Configuration (in seconds)
+TOKEN_EXPIRY_SECONDS=86400
+
+# Debug Mode (set to false in production)
+DEBUG_MODE=true
+```
+
+**Wichtig**: Erstellen Sie eine `.env` Datei im `backend/` Verzeichnis basierend auf `.env.example` mit Ihren eigenen Werten.
 
 ## Lizenz
 

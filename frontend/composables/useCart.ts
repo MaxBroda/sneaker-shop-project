@@ -1,245 +1,216 @@
-import { ref, computed } from 'vue';
+/**
+ * Cart Composable
+ * Handles shopping cart state and operations
+ */
+
+import type { ApiResponse } from './useApi'
 
 export interface CartItem {
-  id: number;
-  product_id: number;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  size: string;
-  category?: string;
+  id: number
+  product_id: number
+  quantity: number
+  size: string
+  name: string
+  price: number
+  image: string | null
+  category: string | null
 }
 
-const cartItems = ref<CartItem[]>([]);
-const isLoading = ref(false);
+interface CartResponse {
+  items: CartItem[]
+  count: number
+}
 
-export const useCart = () => {
-  const config = useRuntimeConfig();
-  const apiUrl = config.public.apiUrl || 'http://localhost:8080/api';
+export function useCart() {
+  const items = useState<CartItem[]>('cart-items', () => [])
+  const isLoading = useState<boolean>('cart-loading', () => false)
+  const error = useState<string | null>('cart-error', () => null)
 
-  const cartItemCount = computed(() => {
-    return cartItems.value.reduce((sum, item) => sum + item.quantity, 0);
-  });
+  const api = useApi()
+  const config = useRuntimeConfig()
 
-  const cartTotal = computed(() => {
-    return cartItems.value.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  });
+  const itemCount = computed(() => {
+    return items.value.reduce((sum, item) => sum + item.quantity, 0)
+  })
 
-  const getAuthToken = () => {
-    if (import.meta.client) {
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      console.log('[CART] Getting auth token:', token ? 'Found' : 'Not found');
-      return token;
-    }
-    return null;
-  };
+  const total = computed(() => {
+    return items.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  })
 
-  const fetchCart = async () => {
+  /**
+   * Format image URL with uploads base path
+   */
+  function formatImageUrl(image: string | null): string | null {
+    if (!image) return null
+    if (image.startsWith('http')) return image
+    return `${config.public.uploadsUrl}/${image}`
+  }
+
+  /**
+   * Fetch cart from server
+   */
+  async function fetchCart(): Promise<void> {
+    isLoading.value = true
+    error.value = null
+
     try {
-      isLoading.value = true;
-      const token = getAuthToken();
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      const response = await api.get<CartResponse>('/cart.php')
 
-      const response = await fetch(`${apiUrl}/cart.php`, {
-        method: 'GET',
-        headers,
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        cartItems.value = data.items;
-      }
-    } catch (error) {
-      console.error('Error fetching cart:', error);
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const addToCart = async (productId: number, size: string, quantity: number = 1) => {
-    try {
-      isLoading.value = true;
-      const token = getAuthToken();
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${apiUrl}/cart.php`, {
-        method: 'POST',
-        headers,
-        credentials: 'include',
-        body: JSON.stringify({
-          product_id: productId,
-          size,
-          quantity,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        cartItems.value = data.items;
-        return { success: true, message: data.message };
+      if (response.success && response.data) {
+        items.value = response.data.items.map(item => ({
+          ...item,
+          image: formatImageUrl(item.image)
+        }))
       } else {
-        return { success: false, message: data.message };
+        error.value = response.message || 'Fehler beim Laden des Warenkorbs'
       }
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      return { success: false, message: 'Fehler beim Hinzufügen zum Warenkorb' };
+    } catch {
+      error.value = 'Netzwerkfehler beim Laden des Warenkorbs'
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
-  };
+  }
 
-  const updateQuantity = async (cartItemId: number, quantity: number) => {
+  /**
+   * Add item to cart
+   */
+  async function addItem(
+    productId: number,
+    size: string,
+    quantity: number = 1
+  ): Promise<{ success: boolean; message: string }> {
+    isLoading.value = true
+    error.value = null
+
     try {
-      isLoading.value = true;
-      const token = getAuthToken();
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      const response = await api.post<CartResponse>('/cart.php', {
+        product_id: productId,
+        size,
+        quantity,
+      })
 
-      const response = await fetch(`${apiUrl}/cart.php`, {
-        method: 'PUT',
-        headers,
-        credentials: 'include',
-        body: JSON.stringify({
-          cart_item_id: cartItemId,
-          quantity,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        cartItems.value = data.items;
-        return { success: true, message: data.message };
+      if (response.success && response.data) {
+        items.value = response.data.items.map(item => ({
+          ...item,
+          image: formatImageUrl(item.image)
+        }))
+        return { success: true, message: response.message || 'Zum Warenkorb hinzugefügt' }
       } else {
-        return { success: false, message: data.message };
+        return { success: false, message: response.message || 'Fehler beim Hinzufügen' }
       }
-    } catch (error) {
-      console.error('Error updating quantity:', error);
-      return { success: false, message: 'Fehler beim Aktualisieren der Menge' };
+    } catch {
+      return { success: false, message: 'Netzwerkfehler' }
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
-  };
+  }
 
-  const removeFromCart = async (cartItemId: number) => {
+  /**
+   * Update item quantity
+   */
+  async function updateQuantity(
+    cartItemId: number,
+    quantity: number
+  ): Promise<{ success: boolean; message: string }> {
+    isLoading.value = true
+    error.value = null
+
     try {
-      isLoading.value = true;
-      const token = getAuthToken();
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      const response = await api.put<CartResponse>('/cart.php', {
+        cart_item_id: cartItemId,
+        quantity,
+      })
 
-      const response = await fetch(`${apiUrl}/cart.php`, {
-        method: 'DELETE',
-        headers,
-        credentials: 'include',
-        body: JSON.stringify({
-          cart_item_id: cartItemId,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        cartItems.value = data.items;
-        return { success: true, message: data.message };
+      if (response.success && response.data) {
+        items.value = response.data.items.map(item => ({
+          ...item,
+          image: formatImageUrl(item.image)
+        }))
+        return { success: true, message: response.message || 'Menge aktualisiert' }
       } else {
-        return { success: false, message: data.message };
+        return { success: false, message: response.message || 'Fehler beim Aktualisieren' }
       }
-    } catch (error) {
-      console.error('Error removing from cart:', error);
-      return { success: false, message: 'Fehler beim Entfernen aus dem Warenkorb' };
+    } catch {
+      return { success: false, message: 'Netzwerkfehler' }
     } finally {
-      isLoading.value = false;
+      isLoading.value = false
     }
-  };
+  }
 
-  const increaseQuantity = async (cartItemId: number) => {
-    const item = cartItems.value.find(i => i.id === cartItemId);
-    if (item) {
-      return await updateQuantity(cartItemId, item.quantity + 1);
-    }
-  };
+  /**
+   * Remove item from cart
+   */
+  async function removeItem(cartItemId: number): Promise<{ success: boolean; message: string }> {
+    isLoading.value = true
+    error.value = null
 
-  const decreaseQuantity = async (cartItemId: number) => {
-    const item = cartItems.value.find(i => i.id === cartItemId);
-    if (item && item.quantity > 1) {
-      return await updateQuantity(cartItemId, item.quantity - 1);
-    } else if (item && item.quantity === 1) {
-      return await removeFromCart(cartItemId);
-    }
-  };
+    try {
+      const response = await api.del<CartResponse>('/cart.php', {
+        cart_item_id: cartItemId,
+      })
 
-  const mergeCart = async () => {
-    await fetchCart();
-  };
-
-  const formatPrice = (price: number): string => {
-    return `${price.toFixed(2)} €`;
-  };
-
-  const clearCart = async () => {
-    const config = useRuntimeConfig();
-    const { token } = useAuth();
-
-    cartItems.value = [];
-
-    if (token.value) {
-      try {
-        await $fetch(`${config.public.apiUrl}/cart.php`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token.value || localStorage.getItem('token')}`,
-          },
-        });
-      } catch (error) {
-        console.error('Error clearing backend cart:', error);
+      if (response.success && response.data) {
+        items.value = response.data.items.map(item => ({
+          ...item,
+          image: formatImageUrl(item.image)
+        }))
+        return { success: true, message: response.message || 'Artikel entfernt' }
+      } else {
+        return { success: false, message: response.message || 'Fehler beim Entfernen' }
       }
+    } catch {
+      return { success: false, message: 'Netzwerkfehler' }
+    } finally {
+      isLoading.value = false
     }
-  };
+  }
+
+  /**
+   * Clear entire cart
+   */
+  async function clearCart(): Promise<{ success: boolean; message: string }> {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await api.del<CartResponse>('/cart.php', {})
+
+      if (response.success) {
+        items.value = []
+        return { success: true, message: response.message || 'Warenkorb geleert' }
+      } else {
+        return { success: false, message: response.message || 'Fehler beim Leeren' }
+      }
+    } catch {
+      return { success: false, message: 'Netzwerkfehler' }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Clear local cart state (used on logout)
+   */
+  function clearLocalCart(): void {
+    items.value = []
+    error.value = null
+  }
 
   return {
-    cartItems,
-    cartItemCount,
-    cartTotal,
+    // State
+    items,
     isLoading,
+    error,
+    itemCount,
+    total,
+
+    // Actions
     fetchCart,
-    addToCart,
+    addItem,
     updateQuantity,
-    removeFromCart,
-    increaseQuantity,
-    decreaseQuantity,
-    mergeCart,
-    formatPrice,
+    removeItem,
     clearCart,
-  };
-};
+    clearLocalCart,
+    formatImageUrl,
+  }
+}

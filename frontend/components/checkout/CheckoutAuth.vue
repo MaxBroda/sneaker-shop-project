@@ -95,8 +95,8 @@
           @click="$emit('guest-checkout')"
           class="w-full bg-signal-red hover:opacity-90 text-white py-3 rounded-lg font-bold transition-all flex items-center justify-center gap-2"
         >
-          <Icon name="mdi:cart-check" class="w-5 h-5" />
-          <span>Als Gast bestellen</span>
+          <Icon name="mdi:cart-check" class="w-5 h-5 text-white" />
+          <span class="text-white">Als Gast bestellen</span>
         </button>
 
         <p class="text-xs text-gray-500 mt-4 text-center">
