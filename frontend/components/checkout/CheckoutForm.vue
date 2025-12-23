@@ -547,7 +547,6 @@ async function loadSavedAddresses() {
 }
 
 function handleBillingSelect(address: any) {
-  console.log("Selected billing address:", address);
   billingAddress.value = address;
   form.street = address.street;
   form.houseNumber = address.house_number;
@@ -563,7 +562,6 @@ function handleBillingSelect(address: any) {
 }
 
 function handleShippingSelect(address: any) {
-  console.log("Selected shipping address:", address);
   shippingAddress.value = address;
   shippingForm.street = address.street;
   shippingForm.houseNumber = address.house_number;
@@ -579,12 +577,10 @@ function handleShippingSelect(address: any) {
 }
 
 function openBillingModal() {
-  console.log("Opening billing modal");
   showBillingModal.value = true;
 }
 
 function openShippingModal() {
-  console.log("Opening shipping modal");
   showShippingModal.value = true;
 }
 
@@ -608,16 +604,10 @@ watch(useDifferentShipping, (newValue) => {
 });
 
 async function handleSubmit() {
-  console.log('handleSubmit called');
-  console.log('cartItems:', cartItems.value);
-  console.log('form:', form);
-  console.log('total:', total.value);
-  
   errorMessage.value = "";
   isSubmitting.value = true;
 
   try {
-    console.log('Building billing address data...');
     const billingAddressData = {
       first_name: form.firstName,
       last_name: form.lastName,
@@ -628,7 +618,6 @@ async function handleSubmit() {
       postal_code: form.postalCode,
       country: form.country,
     };
-    console.log('billingAddressData:', billingAddressData);
 
     const shippingAddressData =
       useDifferentShipping.value && shippingAddress.value
@@ -640,7 +629,6 @@ async function handleSubmit() {
             country: shippingAddress.value.country,
           }
         : null;
-    console.log('shippingAddressData:', shippingAddressData);
 
     const orderItems = cartItems.value.map((item) => ({
       product_id: item.product_id,
@@ -648,10 +636,7 @@ async function handleSubmit() {
       size: item.size,
       price: item.price,
     }));
-    console.log('orderItems:', orderItems);
 
-    // STEP 1: Create order in database
-    console.log('Creating order...');
     const response = await api.post<{ order_number: string; order_id: number }>("/orders.php", {
       items: orderItems,
       total: total.value,
@@ -659,25 +644,19 @@ async function handleSubmit() {
       shipping_address: shippingAddressData,
       payment_method: form.paymentMethod,
     });
-    console.log('Order response:', response);
 
     if (response.success && response.data) {
       const orderNumber = response.data.order_number;
 
-      // STEP 2: Create Mollie payment
-      console.log('Creating Mollie payment...');
       const paymentResponse = await api.post<{ payment_id: string; checkout_url: string }>("/mollie-payment.php", {
         amount: total.value,
         description: `Bestellung #${orderNumber}`,
         order_number: orderNumber,
       });
-      console.log('Payment response:', paymentResponse);
 
       if (paymentResponse.success && paymentResponse.data?.checkout_url) {
-        // STEP 3: Clear cart before redirecting to Mollie
         await clearCart();
 
-        // STEP 4: Redirect to Mollie checkout
         window.location.href = paymentResponse.data.checkout_url;
       } else {
         throw new Error(

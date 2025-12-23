@@ -346,14 +346,7 @@ onMounted(() => {
   fetchAllProducts();
   
   if (typeof window !== "undefined") {
-    const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
-
-    console.log("Checking auth - Token:", savedToken ? "exists" : "missing");
-    console.log(
-      "Checking auth - User:",
-      savedUser ? JSON.parse(savedUser) : "missing"
-    );
 
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
