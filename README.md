@@ -316,14 +316,6 @@ sneaker-shop-project/
 - Formularvalidierung
 - Fehlerbehandlung mit aussagekräftigen Meldungen
 
-### 🔮 Zukünftige Erweiterungen (Optional)
-- Produktbewertungen und Reviews
-- Wunschliste
-- Erweiterte Suchfunktion
-- Admin-Dashboard
-- E-Mail-Benachrichtigungen
-- Newsletter-System
-
 ## API-Endpunkte
 
 Basis-URL: `http://localhost:8080/api`
