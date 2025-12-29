@@ -397,7 +397,7 @@ async function handleUpdate() {
   isLoading.value = true;
 
   try {
-    const response = await api.put('/api/product.php', {
+    const response = await api.put('/product.php', {
       id: props.product?.id,
       name: form.name,
       description: form.description,

@@ -5,3 +5,13 @@ RewriteEngine On
 RewriteCond %{HTTP:Authorization} .+
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+# Handle PUT, DELETE, and other HTTP methods properly
+# This is needed because Apache doesn't pass request body for PUT/DELETE by default
+RewriteCond %{REQUEST_METHOD} ^(PUT|DELETE|PATCH)$
+RewriteRule .* - [E=REQUEST_METHOD:%{REQUEST_METHOD}]
+
+# Ensure PHP files are processed correctly
+<FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
